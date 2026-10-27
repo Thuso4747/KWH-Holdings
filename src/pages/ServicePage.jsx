@@ -91,7 +91,6 @@ function ServiceTabs({ service }) {
 }
 
 export default function ServicePage({ service }) {
-  const category = service.slug === 'business' ? 'Consulting' : service.shortLabel;
   return (
     <main id="main-content">
       <PageTitle title={service.label} description={service.intro} />
@@ -102,7 +101,7 @@ export default function ServicePage({ service }) {
           <p>{service.heroDescription}</p>
           <div className="button-row">
             <Link className="button button--white" to={`/consultation?service=${service.slug}`}>Start Project <ArrowRight size={17} /></Link>
-            <Link className="button button--outline-light" to={`/?category=${category}#work`}>{service.heroLink} <ArrowUpRight size={17} /></Link>
+            <Link className="button button--outline-light" to="#service-offerings">View Services <ArrowUpRight size={17} aria-hidden="true" /></Link>
           </div>
         </div>
       </section>

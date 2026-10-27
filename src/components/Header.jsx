@@ -9,7 +9,6 @@ const items = [
   { label: 'Home', to: '/' },
   { label: 'Services', to: '/#services' },
   { label: 'About', to: '/#about' },
-  { label: 'Work', to: '/#work' },
   { label: 'Contact', to: '/consultation' },
 ];
 
@@ -63,7 +62,6 @@ export default function Header() {
     if (label === 'Home') return location.pathname === '/' && !location.hash;
     if (label === 'Services') return isServicePage || location.hash === '#services';
     if (label === 'About') return location.hash === '#about';
-    if (label === 'Work') return location.hash === '#work';
     if (label === 'Contact') return location.pathname === '/consultation';
     return false;
   }

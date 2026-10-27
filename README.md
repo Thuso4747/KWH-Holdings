@@ -1,6 +1,6 @@
 # KWH Holdings website
 
-A responsive React website for KWH Holdings, with a home page, marketing, business and software service pages, featured-work filters, and a three-step consultation request. On service pages, a transparent, logo-free navigation reveals on upward scroll or near the top edge, adapting its contrast to the content underneath; an accessible menu is also available for touch and keyboard users.
+A responsive React website for KWH Holdings, with a home page, marketing, business and software service pages, and a three-step consultation request. On service pages, a transparent, logo-free navigation reveals on upward scroll or near the top edge, adapting its contrast to the content underneath; an accessible menu is also available for touch and keyboard users.
 
 ## Getting started
 
@@ -23,6 +23,6 @@ The production files are written to `dist/`. Deploy the contents of that directo
 
 ## Consultation requests
 
-The form validates the visitor's answers and prepares a message to `haroldlowa25@gmail.com` in their email application. **It does not submit data to a server:** the visitor must send the prepared email. The address and phone number are based on the supplied design and can be updated in `src/pages/ConsultationPage.jsx` and `src/components/Footer.jsx`. A backend or form service would be needed for direct submissions.
+The form validates the visitor's answers and prepares a message to `haroldlowa25@gmail.com` in their email application. **It does not submit data to a server:** the visitor must send the prepared email. The address and phone number are based on the supplied design and can be updated in `src/pages/ConsultationPage.jsx`. A backend or form service would be needed for direct submissions.
 
-Service content and featured-work entries live in `src/data/`; images are in `public/images/`.
+Service content lives in `src/data/services.js`; images are in `public/images/`. The project data and its images are retained in the repository but are not displayed on the site.

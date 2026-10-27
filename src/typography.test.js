@@ -31,6 +31,14 @@ describe('navigation and action typography', () => {
     expect(serviceStyle.fontWeight).not.toBe('700');
   });
 
+  it('allows home hero buttons to reflow when text is enlarged', () => {
+    document.body.innerHTML = '<section class="home-hero"><a class="button" href="/#services">View our services <svg></svg></a></section>';
+    const button = document.querySelector('.home-hero .button');
+    expect(getComputedStyle(button).maxWidth).toBe('100%');
+    expect(getComputedStyle(button).whiteSpace).toBe('normal');
+    expect(getComputedStyle(button.querySelector('svg')).flex).toBe('0 0 auto');
+  });
+
   it('anchors consultation department arrows to the bottom of their links', () => {
     document.body.innerHTML = `
       <div class="consultation-department-grid">
@@ -53,23 +61,6 @@ describe('navigation and action typography', () => {
     for (const action of document.querySelectorAll('.department-card__link, .offering-card__toggle')) {
       expect(getComputedStyle(action).fontWeight).toBe('400');
       expect(getComputedStyle(action.querySelector('span')).textDecoration).not.toContain('underline');
-    }
-  });
-});
-
-describe('project imagery', () => {
-  it('keeps project logos contained rather than cropped like the cover photos', () => {
-    document.body.innerHTML = `
-      <div class="work-card__image"><img alt="" /><div class="project-logo"><img alt="Brand" /></div></div>
-      <div class="project-modal__image"><img alt="" /><div class="project-logo"><img alt="Brand" /></div></div>
-    `;
-    for (const photo of document.querySelectorAll('.work-card__image > img, .project-modal__image > img')) {
-      expect(getComputedStyle(photo).objectFit).toBe('cover');
-    }
-    for (const logo of document.querySelectorAll('.project-logo img')) {
-      expect(getComputedStyle(logo).objectFit).toBe('contain');
-      expect(getComputedStyle(logo).height).toBe('auto');
-      expect(getComputedStyle(logo).maxWidth).toBe('300px');
     }
   });
 });

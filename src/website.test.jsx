@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -8,6 +10,7 @@ import HomePage from './pages/HomePage';
 import ServicePage from './pages/ServicePage';
 import ConsultationPage from './pages/ConsultationPage';
 import { departments, servicePages } from './data/services';
+import { projects } from './data/projects';
 
 function renderAt(element, path = '/') {
   return render(<MemoryRouter initialEntries={[path]}>{element}</MemoryRouter>);
@@ -29,7 +32,30 @@ describe('footer', () => {
   });
 });
 
-describe('navigation and featured work', () => {
+describe('navigation and home sections', () => {
+  it('removes links to the featured-work section from the header and footer', () => {
+    renderAt(<><Header /><Footer /></>);
+    expect(screen.queryByRole('link', { name: 'Work' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Featured Work' })).not.toBeInTheDocument();
+    expect(document.querySelector('a[href*="#work"]')).toBeNull();
+  });
+
+  it('links the home dashboard to services without showing featured work', () => {
+    renderAt(<HomePage />);
+    expect(screen.getByRole('link', { name: 'View our services' })).toHaveAttribute('href', '/#services');
+    expect(screen.getByRole('region', { name: 'Our Departments' })).toHaveAttribute('id', 'services');
+    expect(screen.queryByRole('heading', { name: 'Featured Work' })).not.toBeInTheDocument();
+    expect(document.querySelector('#work')).toBeNull();
+    expect(screen.queryByRole('button', { name: /view case study/i })).not.toBeInTheDocument();
+  });
+
+  it('retains the project records and supplied Musato logo for future use', () => {
+    expect(projects.map((project) => project.id)).toEqual(['musato', 'asg', 'campaign-management', 'strategic-planning']);
+    const musato = projects.find((project) => project.id === 'musato');
+    expect(musato.logo).toEqual({ src: '/images/musato-technologies-logo.png', width: 1275, height: 277 });
+    expect(existsSync(resolve(process.cwd(), `public${musato.logo.src}`))).toBe(true);
+  });
+
   it('opens and closes the mobile navigation when a link is selected', async () => {
     const user = userEvent.setup();
     renderAt(<Header />);
@@ -347,46 +373,16 @@ describe('navigation and featured work', () => {
     expect(icon.querySelector('g')).toHaveAttribute('stroke', 'currentColor');
     expect(icon.querySelectorAll('path')[1]).toHaveAttribute('d', 'm8 12l3-3l2 2l3-3');
   });
-
-  it('filters work and opens an accessible project dialog', async () => {
-    const user = userEvent.setup();
-    renderAt(<HomePage />);
-    const musatoCard = screen.getByRole('heading', { name: 'Musato Technologies' }).closest('article');
-    const cardLogo = within(musatoCard).getByRole('img', { name: 'Musato Technologies logo' });
-    expect(cardLogo).toHaveAttribute('src', '/images/musato-technologies-logo.png');
-    expect(cardLogo).toHaveAttribute('width', '1275');
-    expect(cardLogo).toHaveAttribute('height', '277');
-    expect(cardLogo.closest('.work-card__image')).not.toBeNull();
-    expect(musatoCard.querySelector('.work-card__image > img')).toHaveAttribute('src', '/images/work-digital.jpg');
-    const asgCard = screen.getByRole('heading', { name: 'ASG IT Support Services' }).closest('article');
-    expect(within(asgCard).queryByRole('img', { name: 'Musato Technologies logo' })).not.toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: 'Marketing', pressed: false }));
-    expect(screen.getByText('Digital Campaign Management', { selector: '.work-card h3' })).toBeInTheDocument();
-    expect(screen.queryByText('Musato Technologies')).not.toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: 'Software' }));
-    const caseStudyButton = screen.getAllByRole('button', { name: /view case study/i })[0];
-    await user.click(caseStudyButton);
-    const dialog = screen.getByRole('dialog', { name: 'Musato Technologies' });
-    expect(within(dialog).getByText(/mobile application project/i)).toBeInTheDocument();
-    const dialogLogo = within(dialog).getByRole('img', { name: 'Musato Technologies logo' });
-    expect(dialogLogo).toHaveAttribute('src', '/images/musato-technologies-logo.png');
-    expect(dialogLogo.closest('.project-modal__image')).not.toBeNull();
-    expect(dialog.querySelector('.project-modal__image > img')).toHaveAttribute('src', '/images/work-digital.jpg');
-    expect(screen.getByRole('button', { name: /close project details/i })).toHaveFocus();
-    await user.keyboard('{Escape}');
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(caseStudyButton).toHaveFocus();
-
-    await user.click(screen.getAllByRole('button', { name: /view case study/i })[1]);
-    const asgDialog = screen.getByRole('dialog', { name: 'ASG IT Support Services' });
-    expect(within(asgDialog).queryByRole('img', { name: 'Musato Technologies logo' })).not.toBeInTheDocument();
-    await user.keyboard('{Escape}');
-  });
 });
 
 describe('service pages', () => {
+  it.each(Object.values(servicePages))('links $label hero to its service offerings', (service) => {
+    renderAt(<ServicePage service={service} />, `/services/${service.slug}`);
+    expect(screen.getByRole('link', { name: 'View Services' })).toHaveAttribute('href', `/services/${service.slug}#service-offerings`);
+    expect(screen.getByRole('region', { name: `Our ${service.shortLabel} Services` })).toHaveAttribute('id', 'service-offerings');
+    expect(document.querySelector('a[href*="#work"]')).toBeNull();
+  });
+
   it.each(Object.values(servicePages))('retains the full $label offering information', (service) => {
     renderAt(<ServicePage service={service} />, `/services/${service.slug}`);
     const section = screen.getByRole('region', { name: `Our ${service.shortLabel} Services` });

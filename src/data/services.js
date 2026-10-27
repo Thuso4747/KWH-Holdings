@@ -42,7 +42,6 @@ export const servicePages = {
     heroFirst: 'Amplify Your',
     heroAccent: 'Brand Impact',
     heroDescription: 'Digital campaigns, SEO, PPC, social media management, branding, and content marketing to enhance your digital presence and drive growth.',
-    heroLink: 'View Campaigns',
     intro: 'Comprehensive marketing solutions that drive measurable results and sustainable growth for your business.',
     offerings: [
       { title: 'Digital Campaign Management', description: 'End-to-end campaign development, execution, and optimization across all digital channels.', tags: ['Multi-channel', 'A/B Testing', 'Analytics'], detail: 'Bring your channels together with campaigns shaped around your audience, objectives, and opportunities for growth.' },
@@ -88,7 +87,6 @@ export const servicePages = {
     heroFirst: 'Transform Your',
     heroAccent: 'Business Today',
     heroDescription: 'Strategic business transformation, operational excellence, and growth acceleration to drive sustainable competitive advantage.',
-    heroLink: 'View Results',
     intro: 'Strategic insights and actionable solutions that transform businesses and accelerate sustainable growth across all industries.',
     offerings: [
       { title: 'Strategic Planning', description: 'Comprehensive strategic planning, market analysis, and execution roadmaps to drive long-term business success.', tags: ['Market Analysis', 'Roadmaps', 'KPIs'], detail: 'Turn your vision into a clear set of priorities, milestones, and next steps for your business.' },
@@ -134,7 +132,6 @@ export const servicePages = {
     heroFirst: 'Build Tomorrow’s',
     heroAccent: 'Software Today',
     heroDescription: 'Transform your ideas into powerful digital solutions with cutting-edge technology and innovative development practices.',
-    heroLink: 'View Work',
     intro: 'From concept to deployment, we deliver comprehensive software solutions tailored to your business needs.',
     offerings: [
       { title: 'Web Applications', description: 'Modern, responsive web applications built with React and cutting-edge technologies for optimal performance.', tags: ['React', 'Node.js', 'TypeScript'], detail: 'Create an accessible, responsive digital experience designed around the people who use it.' },
