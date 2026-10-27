@@ -201,26 +201,26 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
 
 /* Home about */
 .about-section { position: relative; background: linear-gradient(90deg, rgba(250,252,251,.98), rgba(250,252,251,.93) 55%, rgba(250,252,251,.90)), url('/images/about-office.jpg') center / cover; }
-.about-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .9fr); align-items: start; gap: clamp(48px, 8vw, 110px); }
-.about-grid > * { min-width: 0; }
-.about-copy h2 { margin-bottom: 25px; color: var(--accent); font-size: clamp(2.25rem, 3.4vw, 3.05rem); overflow-wrap: anywhere; }
-.about-copy__intro, .about-copy__details p { max-width: 620px; margin-bottom: 0; color: #4e5a5c; font-size: .93rem; line-height: 1.75; }
-.about-copy__intro { font-size: 1rem; color: #405354; }
-.about-copy__details { margin-top: 30px; border-top: 1px solid #cfddda; }
-.about-copy__details > div { padding: 21px 0; border-bottom: 1px solid #cfddda; }
-.about-copy__details h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 9px; color: #5e7b7c; font-size: 1.05rem; letter-spacing: -.02em; }
-.about-copy__details h3::before { content: ''; flex: 0 0 18px; height: 2px; background: #8eaaa8; }
-.about-values { color: #283a3b; }
-.about-values__heading { display: flex; justify-content: space-between; align-items: start; gap: 20px; padding-bottom: 22px; border-bottom: 1px solid #c5d5d2; }
+.about-intro { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); align-items: start; gap: 24px clamp(40px, 7vw, 100px); }
+.about-intro > * { min-width: 0; }
+.about-intro .eyebrow { margin-bottom: 14px; overflow-wrap: anywhere; }
+.about-intro h2 { margin: 0; color: #668485; font-size: clamp(2.25rem, 3.4vw, 3.05rem); overflow-wrap: anywhere; }
+.about-intro__summary { max-width: 620px; margin: 0; color: #405354; font-size: 1rem; line-height: 1.75; overflow-wrap: anywhere; }
+.about-story { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: clamp(24px, 7vw, 100px); margin-top: 48px; }
+.about-story > div { min-width: 0; padding-top: 22px; border-top: 1px solid #cfddda; }
+.about-story h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 9px; color: #526f70; font-size: 1.05rem; letter-spacing: -.02em; overflow-wrap: anywhere; }
+.about-story h3::before { content: ''; flex: 0 0 18px; height: 2px; background: #8eaaa8; }
+.about-story p { max-width: 620px; margin: 0; color: #4e5a5c; font-size: .93rem; line-height: 1.75; overflow-wrap: anywhere; }
+.about-values { display: grid; grid-template-columns: minmax(200px, .75fr) minmax(0, 2fr); align-items: start; gap: clamp(32px, 6vw, 88px); margin-top: clamp(64px, 7vw, 90px); padding-top: 38px; border-top: 1px solid #c5d5d2; color: #283a3b; }
+.about-values__heading { display: flex; align-items: center; gap: 24px; }
 .about-values__heading > div { min-width: 0; }
 .about-values__heading .eyebrow { margin-bottom: 14px; overflow-wrap: anywhere; }
 .about-values__heading h3 { margin: 0; font-size: clamp(1.8rem, 2.5vw, 2.25rem); overflow-wrap: anywhere; }
 .about-values__heading > span { flex: none; color: #7f9e9b; font-size: 2rem; line-height: 1; }
-.about-values dl { margin: 0; }
-.about-values dl > div { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11.5rem), 1fr)); gap: 5px 16px; padding: 18px 0; border-bottom: 1px solid #cbd9d7; }
-.about-values dl > div:last-child { border-bottom: 0; }
+.about-values dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: 28px; min-width: 0; margin: 0; }
+.about-values dl > div { min-width: 0; padding-top: 16px; border-top: 1px solid #cbd9d7; }
 .about-values dt { font-size: .94rem; font-weight: 700; line-height: 1.5; overflow-wrap: anywhere; }
-.about-values dd { margin: 0; color: #4e5a5c; font-size: .87rem; line-height: 1.6; overflow-wrap: anywhere; }
+.about-values dd { margin: 7px 0 0; color: #4e5a5c; font-size: .87rem; line-height: 1.6; overflow-wrap: anywhere; }
 
 /* Featured work */
 .work-section { padding-top: 125px; padding-bottom: 115px; }
@@ -424,6 +424,9 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
 .not-found { min-height: 500px; display: flex; align-items: center; text-align: center; }
 .not-found .button { margin-top: 20px; }
 
+@media (max-width: 1100px) {
+  .about-values { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+}
 @media (max-width: 1000px) {
   .home-hero__inner { grid-template-columns: minmax(0, 1fr); gap: 32px; padding-top: 80px; padding-bottom: 90px; }
   .home-hero__summary > p { max-width: 680px; }
@@ -493,7 +496,7 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
   .home-visual__links { grid-template-columns: 1fr; gap: 0; }
   .home-visual__links a { min-height: 50px; padding: 11px 0; }
   .departments-section { padding-top: 76px; }
-  .section-heading h2, .section-heading h1, .about-copy h2 { font-size: clamp(2rem, 7vw, 2.65rem); }
+  .section-heading h2, .section-heading h1, .about-intro h2 { font-size: clamp(2rem, 7vw, 2.65rem); }
   .section-heading > p:not(.eyebrow) { font-size: .91rem; }
   .departments-heading { grid-template-columns: 1fr; gap: 15px; margin-bottom: 32px; }
   .departments-heading > p:not(.eyebrow) { justify-self: start; }
@@ -507,12 +510,12 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
   .approach-steps { grid-template-columns: minmax(0, 1fr); gap: 0; margin-top: 32px; }
   .approach-steps li { padding: 18px 0; }
   .approach-steps li:last-child { padding-bottom: 0; }
-  .about-grid { grid-template-columns: minmax(0, 1fr); gap: 40px; }
-  .about-copy h2 { margin-bottom: 20px; }
-  .about-copy__details { margin-top: 24px; }
-  .about-copy__details > div { padding: 16px 0; }
-  .about-values__heading { padding-bottom: 18px; }
-  .about-values dl > div { padding: 14px 0; }
+  .about-intro { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .about-story { gap: 26px; margin-top: 36px; }
+  .about-story > div { padding-top: 18px; }
+  .about-values { gap: 24px; margin-top: 60px; padding-top: 32px; }
+  .about-values dl { gap: 24px; }
+  .about-values dl > div { padding-top: 14px; }
   .work-section { padding-block: 85px; }
   .work-grid { grid-template-columns: 1fr; gap: 18px; margin-top: 28px; }
   .work-card__image { height: 250px; }

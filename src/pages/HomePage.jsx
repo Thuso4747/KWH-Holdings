@@ -209,20 +209,22 @@ export default function HomePage() {
       </section>
 
       <section className="about-section section" id="about" aria-labelledby="about-title">
-        <div className="container about-grid">
-          <div className="about-copy">
-            <p className="eyebrow">THE PEOPLE BEHIND THE WORK</p>
-            <h2 id="about-title">About KWH Holdings</h2>
-            <p className="about-copy__intro">Founded by a team of professionals from marketing, business strategy and tech development, KWH Holdings was created to bridge the gap between vision and execution for modern companies.</p>
-            <div className="about-copy__details">
-              <div>
-                <h3>Our Mission</h3>
-                <p>To empower businesses with innovative, sustainable and strategic solutions across marketing, business development and software, helping them scale and thrive in a rapidly evolving digital economy.</p>
-              </div>
-              <div>
-                <h3>Why We Started</h3>
-                <p>We identified a recurring challenge: companies often had innovative ideas but lacked integrated support across strategy, marketing and software. KWH was formed to deliver holistic consulting under one roof.</p>
-              </div>
+        <div className="container">
+          <div className="about-intro">
+            <div>
+              <p className="eyebrow">THE PEOPLE BEHIND THE WORK</p>
+              <h2 id="about-title">About KWH Holdings</h2>
+            </div>
+            <p className="about-intro__summary">Founded by a team of professionals from marketing, business strategy and tech development, KWH Holdings was created to bridge the gap between vision and execution for modern companies.</p>
+          </div>
+          <div className="about-story">
+            <div>
+              <h3>Our Mission</h3>
+              <p>To empower businesses with innovative, sustainable and strategic solutions across marketing, business development and software, helping them scale and thrive in a rapidly evolving digital economy.</p>
+            </div>
+            <div>
+              <h3>Why We Started</h3>
+              <p>We identified a recurring challenge: companies often had innovative ideas but lacked integrated support across strategy, marketing and software. KWH was formed to deliver holistic consulting under one roof.</p>
             </div>
           </div>
           <aside className="about-values" aria-labelledby="values-title">

@@ -308,17 +308,24 @@ describe('navigation and featured work', () => {
     expect(within(items[2]).getByText('Implement and optimize for measurable results.')).toBeInTheDocument();
   });
 
-  it('retains the about story and all five core values', () => {
+  it('retains the about story and all five core values in reading order', () => {
     renderAt(<HomePage />);
     const section = screen.getByRole('region', { name: 'About KWH Holdings' });
-    expect(within(section).getByRole('heading', { name: 'Our Mission' })).toBeInTheDocument();
-    expect(within(section).getByRole('heading', { name: 'Why We Started' })).toBeInTheDocument();
+    expect(section).toHaveAttribute('id', 'about');
+    expect(within(section).getAllByRole('heading').map((heading) => heading.textContent)).toEqual([
+      'About KWH Holdings', 'Our Mission', 'Why We Started', 'Core Values',
+    ]);
+    expect(within(section).getByText('Founded by a team of professionals from marketing, business strategy and tech development, KWH Holdings was created to bridge the gap between vision and execution for modern companies.')).toBeInTheDocument();
+    expect(within(section).getByText('To empower businesses with innovative, sustainable and strategic solutions across marketing, business development and software, helping them scale and thrive in a rapidly evolving digital economy.')).toBeInTheDocument();
+    expect(within(section).getByText('We identified a recurring challenge: companies often had innovative ideas but lacked integrated support across strategy, marketing and software. KWH was formed to deliver holistic consulting under one roof.')).toBeInTheDocument();
     const values = within(section).getByRole('complementary', { name: 'Core Values' });
-    for (const value of ['Integrity', 'Innovation', 'Client Needs Prioritized', 'Collaboration', 'Excellence']) {
-      expect(within(values).getByText(value)).toBeInTheDocument();
-    }
-    expect(values.querySelectorAll('dt')).toHaveLength(5);
-    expect(values.querySelectorAll('dd')).toHaveLength(5);
+    expect([...values.querySelectorAll('dl > div')].map((item) => [item.querySelector('dt')?.textContent, item.querySelector('dd')?.textContent])).toEqual([
+      ['Integrity', 'Transparency, honesty and ethical practices.'],
+      ['Innovation', 'Creativity and technology to solve challenges.'],
+      ['Client Needs Prioritized', 'Solutions tailored to client goals and success.'],
+      ['Collaboration', 'Strong partnerships based on trust.'],
+      ['Excellence', 'Measurable results with professionalism.'],
+    ]);
   });
 
   it('uses the supplied strategy icon for the marketing department', () => {
