@@ -231,6 +231,16 @@ describe('navigation and featured work', () => {
     expect(screen.queryByRole('button', { name: 'Show navigation' })).not.toBeInTheDocument();
   });
 
+  it('offers direct department navigation in the image-led introduction', () => {
+    renderAt(<HomePage />);
+    const navigation = screen.getByRole('navigation', { name: 'Explore our departments' });
+    expect(within(navigation).getAllByRole('link')).toHaveLength(3);
+    for (const department of departments) {
+      expect(within(navigation).getByRole('link', { name: department.cardTitle })).toHaveAttribute('href', `/services/${department.slug}`);
+    }
+    expect(navigation.closest('section').querySelector('img')).toHaveAttribute('alt', '');
+  });
+
   it('shows each department with its services and a distinct accessible link', () => {
     renderAt(<HomePage />);
     const section = screen.getByRole('region', { name: 'Our Departments' });
@@ -238,7 +248,8 @@ describe('navigation and featured work', () => {
     for (const department of departments) {
       const card = within(section).getByRole('heading', { name: department.cardTitle }).closest('article');
       expect(within(card).getByText('KEY SERVICES')).toBeInTheDocument();
-      for (const service of department.bullets) expect(within(card).getByText(service)).toBeInTheDocument();
+      const services = within(card).getByRole('list', { name: `${department.cardTitle} key services` });
+      for (const service of department.bullets) expect(within(services).getByText(service)).toBeInTheDocument();
       expect(within(card).getByRole('link', { name: `Learn more about ${department.cardTitle}` })).toHaveAttribute('href', `/services/${department.slug}`);
       expect(card.querySelector('img')).toHaveAttribute('src', department.image);
       expect(card.querySelector('img')).toHaveAttribute('alt', '');

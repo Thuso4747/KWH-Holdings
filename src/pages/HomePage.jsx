@@ -15,24 +15,47 @@ function DepartmentCard({ department, index }) {
   const Icon = icons[department.slug];
   return (
     <article className={`department-card department-card--${department.slug}`}>
+      <span className="department-card__index" aria-hidden="true">0{index + 1}</span>
+      <div className="department-card__identity">
+        <div className="department-card__topline"><span>OUR EXPERTISE</span><Icon size={23} strokeWidth={1.6} aria-hidden="true" /></div>
+        <h3>{department.cardTitle}</h3>
+      </div>
+      <div className="department-card__body">
+        <p>{department.cardDescription}</p>
+        <div className="department-card__services">
+          <p className="department-card__services-label">KEY SERVICES</p>
+          <ul role="list" aria-label={`${department.cardTitle} key services`}>{department.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>
+        </div>
+        <Link className="department-card__link" to={`/services/${department.slug}`} aria-label={`Learn more about ${department.cardTitle}`}>
+          <span>Learn More</span><ArrowUpRight size={17} aria-hidden="true" />
+        </Link>
+      </div>
       <div className="department-card__image">
         <img src={department.image} alt="" width="1376" height="768" loading="lazy" decoding="async" />
       </div>
-      <div className="department-card__content">
-        <div className="department-card__topline"><span>0{index + 1} / OUR EXPERTISE</span><Icon size={23} strokeWidth={1.6} aria-hidden="true" /></div>
-        <div className="department-card__body">
-          <h3>{department.cardTitle}</h3>
-          <p>{department.cardDescription}</p>
-          <div className="department-card__services">
-            <p className="department-card__services-label">KEY SERVICES</p>
-            <ul>{department.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>
-          </div>
-        </div>
-        <Link className="department-card__link" to={`/services/${department.slug}`} aria-label={`Learn more about ${department.cardTitle}`}>
-          <span>Learn More</span><ArrowRight size={18} aria-hidden="true" />
-        </Link>
-      </div>
     </article>
+  );
+}
+
+function HomeVisual() {
+  return (
+    <section className="home-visual" aria-labelledby="home-visual-title">
+      <img src="/images/city-connections.jpg" alt="" width="1584" height="672" loading="lazy" decoding="async" />
+      <div className="container home-visual__inner">
+        <div className="home-visual__intro">
+          <p className="eyebrow eyebrow--light">BRINGING IT ALL TOGETHER</p>
+          <h2 id="home-visual-title">From vision<br />to execution.</h2>
+        </div>
+        <nav className="home-visual__links" aria-label="Explore our departments">
+          {departments.map((department, index) => (
+            <Link key={department.slug} to={`/services/${department.slug}`}>
+              <span><span className="home-visual__index" aria-hidden="true">0{index + 1}</span>{department.cardTitle}</span>
+              <ArrowUpRight size={19} aria-hidden="true" />
+            </Link>
+          ))}
+        </nav>
+      </div>
+    </section>
   );
 }
 
@@ -145,15 +168,21 @@ export default function HomePage() {
       <PageTitle title="Strategic solutions for modern businesses" description="KWH Holdings brings marketing, business strategy, and software development together to help modern businesses grow." />
       <section className="home-hero">
         <div className="container home-hero__inner">
-          <p className="eyebrow eyebrow--center"><span></span> STRATEGY · CREATIVITY · TECHNOLOGY <span></span></p>
-          <h1><span>Strategic Solutions</span><br />for Modern Businesses</h1>
-          <p>We bridge the gap between vision and execution with integrated consulting across marketing, business strategy and software development. Scale your business with confidence.</p>
-          <div className="button-row button-row--center">
-            <Link className="button button--primary" to="/consultation">Start Your Journey <ArrowRight size={17} aria-hidden="true" /></Link>
-            <Link className="button button--outline" to="/#work">View Our Work <ArrowUpRight size={17} aria-hidden="true" /></Link>
+          <div className="home-hero__headline">
+            <p className="eyebrow"><span aria-hidden="true">+</span> STRATEGY · CREATIVITY · TECHNOLOGY</p>
+            <h1><span>Strategic Solutions</span><br />for Modern Businesses</h1>
+          </div>
+          <div className="home-hero__summary">
+            <p>We bridge the gap between vision and execution with integrated consulting across marketing, business strategy and software development. Scale your business with confidence.</p>
+            <div className="button-row">
+              <Link className="button button--primary" to="/consultation">Start Your Journey <ArrowRight size={17} aria-hidden="true" /></Link>
+              <Link className="button button--outline" to="/#work">View Our Work <ArrowUpRight size={17} aria-hidden="true" /></Link>
+            </div>
           </div>
         </div>
       </section>
+
+      <HomeVisual />
 
       <section className="departments-section section" id="services" aria-labelledby="departments-title">
         <div className="container">
