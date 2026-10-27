@@ -319,6 +319,7 @@ describe('navigation and featured work', () => {
     expect(within(section).getByText('To empower businesses with innovative, sustainable and strategic solutions across marketing, business development and software, helping them scale and thrive in a rapidly evolving digital economy.')).toBeInTheDocument();
     expect(within(section).getByText('We identified a recurring challenge: companies often had innovative ideas but lacked integrated support across strategy, marketing and software. KWH was formed to deliver holistic consulting under one roof.')).toBeInTheDocument();
     const values = within(section).getByRole('complementary', { name: 'Core Values' });
+    expect(values).not.toHaveTextContent('✳');
     expect([...values.querySelectorAll('dl > div')].map((item) => [item.querySelector('dt')?.textContent, item.querySelector('dd')?.textContent])).toEqual([
       ['Integrity', 'Transparency, honesty and ethical practices.'],
       ['Innovation', 'Creativity and technology to solve challenges.'],

@@ -228,7 +228,7 @@ export default function HomePage() {
             </div>
           </div>
           <aside className="about-values" aria-labelledby="values-title">
-            <div className="about-values__heading"><div><p className="eyebrow">WHAT GUIDES US</p><h3 id="values-title">Core Values</h3></div><span aria-hidden="true">✳</span></div>
+            <div className="about-values__heading"><p className="eyebrow">WHAT GUIDES US</p><h3 id="values-title">Core Values</h3></div>
             <dl>
               <div><dt>Integrity</dt><dd>Transparency, honesty and ethical practices.</dd></div>
               <div><dt>Innovation</dt><dd>Creativity and technology to solve challenges.</dd></div>

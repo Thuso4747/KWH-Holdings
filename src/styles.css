@@ -212,11 +212,9 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
 .about-story h3::before { content: ''; flex: 0 0 18px; height: 2px; background: #8eaaa8; }
 .about-story p { max-width: 620px; margin: 0; color: #4e5a5c; font-size: .93rem; line-height: 1.75; overflow-wrap: anywhere; }
 .about-values { display: grid; grid-template-columns: minmax(200px, .75fr) minmax(0, 2fr); align-items: start; gap: clamp(32px, 6vw, 88px); margin-top: clamp(64px, 7vw, 90px); padding-top: 38px; border-top: 1px solid #c5d5d2; color: #283a3b; }
-.about-values__heading { display: flex; align-items: center; gap: 24px; }
-.about-values__heading > div { min-width: 0; }
+.about-values__heading { min-width: 0; }
 .about-values__heading .eyebrow { margin-bottom: 14px; overflow-wrap: anywhere; }
 .about-values__heading h3 { margin: 0; font-size: clamp(1.8rem, 2.5vw, 2.25rem); overflow-wrap: anywhere; }
-.about-values__heading > span { flex: none; color: #7f9e9b; font-size: 2rem; line-height: 1; }
 .about-values dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: 28px; min-width: 0; margin: 0; }
 .about-values dl > div { min-width: 0; padding-top: 16px; border-top: 1px solid #cbd9d7; }
 .about-values dt { font-size: .94rem; font-weight: 700; line-height: 1.5; overflow-wrap: anywhere; }
