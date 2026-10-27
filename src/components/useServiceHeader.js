@@ -3,6 +3,8 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 const REVEAL_ZONE = 72;
 const HIDE_DELAY = 240;
 const SCROLL_THRESHOLD = 5;
+// The hero fades over a fixed distance, even when its content grows with text size.
+const HERO_FADE_SWITCH_DISTANCE = 75;
 
 /** Keep the service hero unobstructed while making navigation easy to reveal. */
 export function useServiceHeader(enabled, pathname, menuOpen) {
@@ -68,7 +70,7 @@ export function useServiceHeader(enabled, pathname, menuOpen) {
       const navY = 42;
       const heroRect = hero.getBoundingClientRect();
       const footerRect = document.querySelector('.site-footer')?.getBoundingClientRect();
-      const overHeroImage = heroRect.top <= navY && heroRect.bottom - heroRect.height * .15 > navY;
+      const overHeroImage = heroRect.top <= navY && heroRect.bottom - HERO_FADE_SWITCH_DISTANCE > navY;
       const overFooter = footerRect && footerRect.top <= navY && footerRect.bottom > navY;
       const overDarkCard = document.elementsFromPoint?.(window.innerWidth / 2, navY)
         .some((element) => element.closest('.benefit-card'));

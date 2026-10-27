@@ -31,7 +31,7 @@ function DepartmentCard({ department, index }) {
         </Link>
       </div>
       <div className="department-card__image">
-        <img src={department.image} alt="" width="1376" height="768" loading="lazy" decoding="async" />
+        <img src={department.image} alt="" width={department.imageWidth} height={department.imageHeight} loading="lazy" decoding="async" />
       </div>
     </article>
   );

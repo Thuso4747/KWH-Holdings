@@ -62,6 +62,14 @@ describe('navigation and featured work', () => {
       fireEvent.scroll(window);
       expect(header).not.toHaveClass('is-over-light');
 
+      // A taller hero (for example at enlarged text sizes) still switches in its fixed-depth fade.
+      heroRect.mockReturnValue({ top: -1050, bottom: 180, height: 1230 });
+      fireEvent.scroll(window);
+      expect(header).not.toHaveClass('is-over-light');
+      heroRect.mockReturnValue({ top: -1140, bottom: 90, height: 1230 });
+      fireEvent.scroll(window);
+      expect(header).toHaveClass('is-over-light');
+
       heroRect.mockReturnValue({ top: -500, bottom: 100, height: 600 });
       fireEvent.resize(window);
       expect(header).toHaveClass('is-over-light');
@@ -254,6 +262,24 @@ describe('navigation and featured work', () => {
       expect(card.querySelector('img')).toHaveAttribute('src', department.image);
       expect(card.querySelector('img')).toHaveAttribute('alt', '');
     }
+  });
+
+  it.each([
+    { slug: 'software', title: 'Software Solutions', image: '/images/software-solutions.jpg', width: '1281' },
+    { slug: 'business', title: 'Business Consulting', image: '/images/business-consulting.jpg', width: '1272' },
+    { slug: 'marketing', title: 'Marketing Strategy', image: '/images/marketing-strategy.jpg', width: '1272' },
+  ])('uses the supplied $title image on the homepage and service page', ({ slug, title, image, width }) => {
+    const home = renderAt(<HomePage />);
+    const card = screen.getByRole('heading', { name: title }).closest('article');
+    const photo = card.querySelector('.department-card__image img');
+    expect(photo).toHaveAttribute('src', image);
+    expect(photo).toHaveAttribute('width', width);
+    expect(photo).toHaveAttribute('height', '719');
+    expect(photo).toHaveAttribute('alt', '');
+    home.unmount();
+
+    const service = renderAt(<ServicePage service={servicePages[slug]} />, `/services/${slug}`);
+    expect(service.container.querySelector('.service-hero')).toHaveStyle({ backgroundImage: `url(${image})` });
   });
 
   it('presents the integrated approach as an ordered sequence', () => {
