@@ -423,6 +423,23 @@ describe('service pages', () => {
 });
 
 describe('consultation request', () => {
+  it('lists only the three departments and links to their service pages', () => {
+    renderAt(<ConsultationPage />, '/consultation');
+    const section = screen.getByRole('region', { name: 'Our Departments' });
+    expect(within(section).getByText('ONE TEAM, MANY PERSPECTIVES')).toBeInTheDocument();
+    expect(within(section).getAllByRole('link')).toHaveLength(3);
+    for (const [title, slug] of [
+      ['Marketing & Digital', 'marketing'],
+      ['Business Strategy', 'business'],
+      ['Technology Solutions', 'software'],
+    ]) {
+      const link = within(section).getByRole('heading', { name: title }).closest('a');
+      expect(link).toHaveAttribute('href', `/services/${slug}`);
+      expect(link.querySelector('.department-arrow')).toHaveAttribute('aria-hidden', 'true');
+    }
+    expect(within(section).queryByRole('heading', { name: 'Creative & Design' })).not.toBeInTheDocument();
+  });
+
   it('validates each step, preserves answers, and prepares an honest email handoff', async () => {
     const user = userEvent.setup();
     renderAt(<ConsultationPage />, '/consultation?service=business&focus=Strategic%20Planning');

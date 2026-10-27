@@ -208,14 +208,13 @@ export default function ConsultationPage() {
           </div>
         </div>
       </section>
-      <section className="consultation-departments section">
+      <section className="consultation-departments section" aria-labelledby="consultation-departments-title">
         <div className="container">
-          <div className="section-heading section-heading--center"><p className="eyebrow">ONE TEAM, MANY PERSPECTIVES</p><h2>Our Departments</h2></div>
+          <div className="section-heading section-heading--center"><p className="eyebrow">ONE TEAM, MANY PERSPECTIVES</p><h2 id="consultation-departments-title">Our Departments</h2></div>
           <div className="consultation-department-grid">
             <Link to="/services/marketing"><h3>Marketing &amp; Digital</h3><p>Social Media, Content Strategy, Email Marketing</p><ArrowUpRightIcon /></Link>
             <Link to="/services/business"><h3>Business Strategy</h3><p>Growth Planning, Market Analysis, Process Optimization</p><ArrowUpRightIcon /></Link>
             <Link to="/services/software"><h3>Technology Solutions</h3><p>Web Development, Mobile Apps, System Integration</p><ArrowUpRightIcon /></Link>
-            <Link to="/services/marketing"><h3>Creative &amp; Design</h3><p>Branding, UI/UX, Graphic Design, Print Design</p><ArrowUpRightIcon /></Link>
           </div>
         </div>
       </section>

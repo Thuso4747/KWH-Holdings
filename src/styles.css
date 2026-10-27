@@ -391,12 +391,13 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
 .contact-detail a:hover { color: #fff; text-decoration: underline; }
 .consultation-departments { padding-top: 80px; padding-bottom: 105px; }
 .consultation-departments .section-heading { margin-bottom: 42px; }
-.consultation-department-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; }
-.consultation-department-grid a { position: relative; display: block; padding: 0 12px; text-align: center; }
-.consultation-department-grid h3 { margin-bottom: 12px; color: #5e7b7c; font-size: 1rem; }
-.consultation-department-grid p { margin-bottom: 8px; color: #566266; font-size: .8rem; line-height: 1.6; }
-.department-arrow { color: #6c8d8e; transition: transform .2s; display: inline-block; }
-.consultation-department-grid a:hover .department-arrow { transform: translate(3px, -3px); }
+.consultation-departments h2 { overflow-wrap: anywhere; }
+.consultation-department-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 30px; }
+.consultation-department-grid a { position: relative; display: flex; flex-direction: column; align-items: center; min-width: 0; padding: 0 12px; text-align: center; }
+.consultation-department-grid h3 { margin-bottom: 12px; color: #5e7b7c; font-size: 1rem; overflow-wrap: anywhere; }
+.consultation-department-grid p { margin-bottom: 8px; color: #566266; font-size: .8rem; line-height: 1.6; overflow-wrap: anywhere; }
+.department-arrow { display: inline-block; margin-top: auto; color: #6c8d8e; transition: transform .2s; }
+.consultation-department-grid a:hover .department-arrow { transform: translateX(3px); }
 
 /* Footer and simple pages */
 .site-footer { padding: 76px 0 28px; background: #242627; color: #fff; }
@@ -545,7 +546,8 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
   .consultation-info-grid { grid-template-columns: 1fr; gap: 15px; }
   .consultation-info-card { min-height: 0; padding: 33px; }
   .consultation-departments { padding-top: 65px; }
-  .consultation-department-grid { grid-template-columns: repeat(2, 1fr); gap: 35px 20px; }
+  .consultation-department-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 35px 20px; }
+  .consultation-department-grid a:last-child { grid-column: 1 / -1; justify-self: center; width: calc((100% - 20px) / 2); }
   .footer-grid { grid-template-columns: repeat(2, 1fr); gap: 42px 30px; }
   .footer-bottom { margin-top: 50px; }
 }
@@ -565,6 +567,8 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
   .consultation-form-wrap { padding: 30px 20px; }
   .form-actions .button { padding-inline: 15px; }
   .consultation-info-card { padding: 29px 25px; }
+  .consultation-department-grid { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .consultation-department-grid a:last-child { grid-column: auto; width: 100%; }
   .consultation-department-grid h3 { font-size: .9rem; }
   .consultation-department-grid p { font-size: .75rem; }
   .footer-grid { gap: 38px 22px; }
@@ -573,7 +577,7 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
-  .department-card__link:hover svg, .department-card__link:focus-visible svg, .offering-card__toggle[aria-expanded='false']:hover svg, .offering-card__toggle[aria-expanded='false']:focus-visible svg, .home-visual__links a:hover svg { transform: none; }
+  .department-card__link:hover svg, .department-card__link:focus-visible svg, .offering-card__toggle[aria-expanded='false']:hover svg, .offering-card__toggle[aria-expanded='false']:focus-visible svg, .home-visual__links a:hover svg, .consultation-department-grid a:hover .department-arrow { transform: none; }
   /* The menu's SVG animations are SMIL, not CSS animations. */
   .menu-icon path { stroke-dasharray: none !important; stroke-dashoffset: 0 !important; }
 }
