@@ -41,6 +41,45 @@ describe('navigation and featured work', () => {
     }
   });
 
+  it('removes the logo from service navigation while keeping the Home link', () => {
+    renderAt(<Header />, '/services/marketing');
+    expect(screen.queryByRole('link', { name: 'KWH Holdings home' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('link', { name: 'Services' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('changes service navigation contrast over light content and dark areas', () => {
+    renderAt(<><Header /><main><section className="service-hero" /><div className="benefit-card" /></main><footer className="site-footer" /></>, '/services/business');
+    const header = screen.getByRole('banner');
+    const hero = document.querySelector('.service-hero');
+    const footer = document.querySelector('.site-footer');
+    const heroRect = vi.spyOn(hero, 'getBoundingClientRect');
+    const footerRect = vi.spyOn(footer, 'getBoundingClientRect').mockReturnValue({ top: 1000, bottom: 1200 });
+    const originalElementsFromPoint = Object.getOwnPropertyDescriptor(document, 'elementsFromPoint');
+    Object.defineProperty(document, 'elementsFromPoint', { configurable: true, value: vi.fn(() => []) });
+    try {
+      heroRect.mockReturnValue({ top: 0, bottom: 600, height: 600 });
+      fireEvent.scroll(window);
+      expect(header).not.toHaveClass('is-over-light');
+
+      heroRect.mockReturnValue({ top: -500, bottom: 100, height: 600 });
+      fireEvent.resize(window);
+      expect(header).toHaveClass('is-over-light');
+
+      document.elementsFromPoint.mockReturnValue([document.querySelector('.benefit-card')]);
+      fireEvent.scroll(window);
+      expect(header).not.toHaveClass('is-over-light');
+
+      document.elementsFromPoint.mockReturnValue([]);
+      footerRect.mockReturnValue({ top: 0, bottom: 300 });
+      fireEvent.scroll(window);
+      expect(header).not.toHaveClass('is-over-light');
+    } finally {
+      if (originalElementsFromPoint) Object.defineProperty(document, 'elementsFromPoint', originalElementsFromPoint);
+      else delete document.elementsFromPoint;
+    }
+  });
+
   it('reveals the service navigation near the top and hides it after the pointer leaves', async () => {
     renderAt(<Header />, '/services/marketing');
     const header = screen.getByRole('banner');
@@ -127,6 +166,49 @@ describe('navigation and featured work', () => {
     }
   });
 
+  it('keeps the transparent mobile service menu accessible and restores the page on close', async () => {
+    const widthDescriptor = Object.getOwnPropertyDescriptor(window, 'innerWidth');
+    const previousOverflow = document.body.style.overflow;
+    Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: 390 });
+    document.body.style.overflow = 'auto';
+    try {
+      const user = userEvent.setup();
+      renderAt(<><a className="skip-link" href="#main-content">Skip to content</a><Header /><main id="main-content"><button>Page action</button></main><footer className="site-footer">Footer</footer></>, '/services/software');
+      const main = document.querySelector('main');
+      const footer = document.querySelector('.site-footer');
+      const skipLink = document.querySelector('.skip-link');
+      footer.setAttribute('inert', ''); // Preserve a pre-existing inert state.
+      const trigger = screen.getByRole('button', { name: 'Show navigation' });
+      await user.click(trigger);
+      const dialog = screen.getByRole('dialog', { name: 'Navigation menu' });
+      expect(dialog).toHaveAttribute('aria-modal', 'true');
+      expect(main).toHaveAttribute('inert');
+      expect(footer).toHaveAttribute('inert');
+      expect(skipLink).toHaveAttribute('inert');
+      expect(document.body).toHaveClass('service-menu-open');
+      expect(document.body.style.overflow).toBe('hidden');
+
+      const close = within(dialog).getByRole('button', { name: 'Close navigation menu' });
+      const lastLink = within(dialog).getByRole('link', { name: 'Start a project' });
+      expect(close).toHaveFocus();
+      await user.tab({ shift: true });
+      expect(lastLink).toHaveFocus();
+      await user.tab();
+      expect(close).toHaveFocus();
+      await user.keyboard('{Escape}');
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(main).not.toHaveAttribute('inert');
+      expect(skipLink).not.toHaveAttribute('inert');
+      expect(footer).toHaveAttribute('inert');
+      expect(document.body).not.toHaveClass('service-menu-open');
+      expect(document.body.style.overflow).toBe('auto');
+      await waitFor(() => expect(trigger).toHaveFocus());
+    } finally {
+      document.body.style.overflow = previousOverflow;
+      Object.defineProperty(window, 'innerWidth', widthDescriptor);
+    }
+  });
+
   it('reveals service navigation for keyboard focus and returns focus on Escape', async () => {
     const user = userEvent.setup();
     renderAt(<Header />, '/services/software');
@@ -134,8 +216,8 @@ describe('navigation and featured work', () => {
     const trigger = screen.getByRole('button', { name: 'Show navigation' });
     await user.tab();
     expect(trigger).toHaveFocus();
-    await user.tab();
-    expect(screen.getByRole('link', { name: 'KWH Holdings home' })).toHaveFocus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('link', { name: 'Home' })).toHaveFocus();
     expect(header).toHaveClass('is-revealed');
     await user.keyboard('{Escape}');
     expect(header).not.toHaveClass('is-revealed');
@@ -145,6 +227,7 @@ describe('navigation and featured work', () => {
   it('keeps the standard header on non-service pages', () => {
     renderAt(<Header />, '/consultation');
     expect(screen.getByRole('banner')).not.toHaveClass('site-header--service');
+    expect(screen.getByRole('link', { name: 'KWH Holdings home' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Show navigation' })).not.toBeInTheDocument();
   });
 

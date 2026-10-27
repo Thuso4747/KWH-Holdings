@@ -1,6 +1,6 @@
 # KWH Holdings website
 
-A responsive React website for KWH Holdings, with a home page, marketing, business and software service pages, featured-work filters, and a three-step consultation request. On service pages, the navigation reveals on upward scroll or near the top edge; a menu button is also available for touch and keyboard users.
+A responsive React website for KWH Holdings, with a home page, marketing, business and software service pages, featured-work filters, and a three-step consultation request. On service pages, a transparent, logo-free navigation reveals on upward scroll or near the top edge, adapting its contrast to the content underneath; an accessible menu is also available for touch and keyboard users.
 
 ## Getting started
 

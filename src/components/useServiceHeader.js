@@ -7,6 +7,7 @@ const SCROLL_THRESHOLD = 5;
 /** Keep the service hero unobstructed while making navigation easy to reveal. */
 export function useServiceHeader(enabled, pathname, menuOpen) {
   const [isVisible, setIsVisible] = useState(false);
+  const [overLightContent, setOverLightContent] = useState(false);
   const headerRef = useRef(null);
   const triggerRef = useRef(null);
   const hideTimer = useRef(null);
@@ -48,6 +49,7 @@ export function useServiceHeader(enabled, pathname, menuOpen) {
   useLayoutEffect(() => {
     cancelHide();
     setIsVisible(false);
+    setOverLightContent(false);
     reason.current = null;
     pointerNearHeader.current = false;
   }, [cancelHide, pathname]);
@@ -58,6 +60,22 @@ export function useServiceHeader(enabled, pathname, menuOpen) {
     let lastScrollY = Math.max(window.scrollY, 0);
     let scrollReady = false;
     let ignoreMouseUntil = 0;
+
+    // The header has no background, so adapt its ink when it leaves the photo.
+    const updateContrast = () => {
+      const hero = document.querySelector('.service-hero');
+      if (!hero) return;
+      const navY = 42;
+      const heroRect = hero.getBoundingClientRect();
+      const footerRect = document.querySelector('.site-footer')?.getBoundingClientRect();
+      const overHeroImage = heroRect.top <= navY && heroRect.bottom - heroRect.height * .15 > navY;
+      const overFooter = footerRect && footerRect.top <= navY && footerRect.bottom > navY;
+      const overDarkCard = document.elementsFromPoint?.(window.innerWidth / 2, navY)
+        .some((element) => element.closest('.benefit-card'));
+      setOverLightContent(!overHeroImage && !overFooter && !overDarkCard);
+    };
+    updateContrast();
+
     // Ignore the router's initial scroll-to-top when entering a service page.
     const initialScrollTimer = window.setTimeout(() => {
       lastScrollY = Math.max(window.scrollY, 0);
@@ -74,6 +92,7 @@ export function useServiceHeader(enabled, pathname, menuOpen) {
       else if (reason.current === 'hover') scheduleHide();
     };
     const onScroll = () => {
+      updateContrast();
       const currentY = Math.max(window.scrollY, 0);
       if (!scrollReady) {
         lastScrollY = currentY;
@@ -98,6 +117,7 @@ export function useServiceHeader(enabled, pathname, menuOpen) {
 
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', updateContrast);
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('pointerdown', onPointerDown);
     return () => {
@@ -105,6 +125,7 @@ export function useServiceHeader(enabled, pathname, menuOpen) {
       cancelHide();
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', updateContrast);
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('pointerdown', onPointerDown);
     };
@@ -115,5 +136,5 @@ export function useServiceHeader(enabled, pathname, menuOpen) {
     if (!event.currentTarget.contains(event.relatedTarget)) scheduleHide();
   };
 
-  return { headerRef, triggerRef, isVisible, show, hide, onFocus, onBlur };
+  return { headerRef, triggerRef, isVisible, overLightContent, show, hide, onFocus, onBlur };
 }

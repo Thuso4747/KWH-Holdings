@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { X } from 'lucide-react';
 import Logo from './Logo';
@@ -19,8 +19,45 @@ export default function Header() {
   const location = useLocation();
   const isServicePage = /^\/(?:services\/(?:marketing|business|software)|marketing|business|software)\/?$/.test(location.pathname);
   const serviceHeader = useServiceHeader(isServicePage, location.pathname, menuOpen);
+  const isServiceMenuOpen = isServicePage && menuOpen;
 
   useLayoutEffect(() => { setMenuOpen(false); }, [location.pathname]);
+
+  // On small screens the transparent menu sits over the page as a modal.
+  useLayoutEffect(() => {
+    if (!isServiceMenuOpen) return undefined;
+    const backgroundElements = [...document.querySelectorAll('main, .site-footer, .skip-link')];
+    const alreadyInert = backgroundElements.map((element) => element.hasAttribute('inert'));
+    const previousOverflow = document.body.style.overflow;
+    const hadMenuClass = document.body.classList.contains('service-menu-open');
+    backgroundElements.forEach((element) => element.setAttribute('inert', ''));
+    document.body.classList.add('service-menu-open');
+    document.body.style.overflow = 'hidden';
+    return () => {
+      backgroundElements.forEach((element, index) => {
+        if (!alreadyInert[index]) element.removeAttribute('inert');
+      });
+      if (!hadMenuClass) document.body.classList.remove('service-menu-open');
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isServiceMenuOpen]);
+
+  useEffect(() => {
+    if (!isServiceMenuOpen || !window.matchMedia) return undefined;
+    const mobile = window.matchMedia('(max-width: 760px)');
+    const onChange = (event) => {
+      if (!event.matches) {
+        setMenuOpen(false);
+        window.requestAnimationFrame(() => serviceHeader.headerRef.current?.querySelector('.primary-nav a')?.focus({ preventScroll: true }));
+      }
+    };
+    if (mobile.addEventListener) mobile.addEventListener('change', onChange);
+    else mobile.addListener(onChange);
+    return () => {
+      if (mobile.removeEventListener) mobile.removeEventListener('change', onChange);
+      else mobile.removeListener(onChange);
+    };
+  }, [isServiceMenuOpen, serviceHeader.headerRef]);
 
   function isActive(label) {
     if (label === 'Home') return location.pathname === '/' && !location.hash;
@@ -51,8 +88,30 @@ export default function Header() {
   }
 
   function handleHeaderBlur(event) {
+    // The modal backdrop handles outside clicks; do not unmount it on blur first.
+    if (isServiceMenuOpen) return;
     if (!event.currentTarget.contains(event.relatedTarget)) setMenuOpen(false);
     if (isServicePage) serviceHeader.onBlur(event);
+  }
+
+  function handleHeaderKeyDown(event) {
+    if (!isServicePage) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeServiceNavigation();
+      return;
+    }
+    if (!isServiceMenuOpen || event.key !== 'Tab') return;
+    const controls = [...serviceHeader.headerRef.current.querySelectorAll('.menu-toggle, .primary-nav a[href]')];
+    const first = controls[0];
+    const last = controls[controls.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last?.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first?.focus();
+    }
   }
 
   return (
@@ -71,21 +130,20 @@ export default function Header() {
           <MenuIcon key={serviceHeader.isVisible ? 'hidden' : 'shown'} aria-hidden="true" />
         </button>
       )}
+      {isServiceMenuOpen && <div className="service-menu-backdrop" aria-hidden="true" onClick={closeServiceNavigation} />}
       <header
         id="site-header"
         ref={serviceHeader.headerRef}
-        className={`site-header ${isServicePage ? 'site-header--service' : ''} ${isServicePage && serviceHeader.isVisible ? 'is-revealed' : ''}`}
+        className={`site-header ${isServicePage ? 'site-header--service' : ''} ${isServicePage && serviceHeader.overLightContent ? 'is-over-light' : ''} ${isServicePage && serviceHeader.isVisible ? 'is-revealed' : ''}`}
+        role={isServiceMenuOpen ? 'dialog' : undefined}
+        aria-modal={isServiceMenuOpen ? 'true' : undefined}
+        aria-label={isServiceMenuOpen ? 'Navigation menu' : undefined}
         onFocusCapture={isServicePage ? serviceHeader.onFocus : undefined}
         onBlurCapture={handleHeaderBlur}
-        onKeyDownCapture={(event) => {
-          if (isServicePage && event.key === 'Escape') {
-            event.preventDefault();
-            closeServiceNavigation();
-          }
-        }}
+        onKeyDownCapture={handleHeaderKeyDown}
       >
         <div className="header-inner container">
-          <div onClick={() => setMenuOpen(false)}><Logo /></div>
+          {!isServicePage && <div onClick={() => setMenuOpen(false)}><Logo /></div>}
           <button
             ref={menuToggleRef}
             type="button"
