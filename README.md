@@ -19,7 +19,25 @@ npm run build
 npm run preview
 ```
 
-The production files are written to `dist/`. Deploy the contents of that directory at the root of a static host and configure it to serve `index.html` for unknown routes, so direct links such as `/services/business` work. The included `public/_redirects` provides this fallback on Netlify and compatible hosts.
+The production files are written to `dist/`. The site is a single-page application: configure a static host to serve `index.html` for unknown routes so direct links such as `/services/business` work.
+
+## Deployment
+
+### Cloudflare Workers
+
+Connect the GitHub repository to the `kwh-holdings` Worker and use these Workers Builds settings:
+
+- Production branch: `main`
+- Root directory: `/`
+- Build command: `npm run build`
+- Deploy command: `npx wrangler deploy`
+- Preview command: `npx wrangler preview`
+
+`wrangler.jsonc` serves the `dist/` assets, enables single-page routing, and includes the empty preview configuration required for branch previews. Do not add the Netlify-style `/* /index.html 200` rule to `public/_redirects`: Cloudflare Workers rejects that rule as a redirect loop.
+
+### Netlify and other hosts
+
+For a Netlify site connected to this repository, `netlify.toml` builds `dist/` and provides the single-page fallback. If manually uploading only `dist/`, or using a different static host, configure the equivalent fallback on that host.
 
 ## Consultation requests
 

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowUpRight, Code2 } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUpRight, Code2 } from 'lucide-react';
 import PageTitle from '../components/PageTitle';
 import { PresentationIcon } from '../components/PresentationIcon';
 import { StrategyIcon } from '../components/StrategyIcon';
@@ -32,12 +32,12 @@ function DepartmentCard({ department, index }) {
 
 function HomeVisual() {
   return (
-    <section className="home-visual" aria-labelledby="home-visual-title">
+    <section className="home-visual" id="vision" aria-labelledby="home-visual-title">
       <img src="/images/city-connections.jpg" alt="" width="1584" height="672" loading="lazy" decoding="async" />
       <div className="container home-visual__inner">
         <div className="home-visual__intro">
           <p className="eyebrow eyebrow--light">BRINGING IT ALL TOGETHER</p>
-          <h2 id="home-visual-title">From vision<br />to execution.</h2>
+          <h2 id="home-visual-title">From vision{' '}<br />to execution.</h2>
         </div>
         <nav className="home-visual__links" aria-label="Explore our departments">
           {departments.map((department, index) => (
@@ -70,6 +70,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+        <Link className="home-hero__scroll" to="/#vision">Scroll to explore <ArrowDown size={16} aria-hidden="true" /></Link>
       </section>
 
       <HomeVisual />

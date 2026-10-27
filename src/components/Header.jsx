@@ -102,7 +102,7 @@ export default function Header() {
   }, [isServiceMenuOpen, serviceHeader.headerRef]);
 
   function isActive(label) {
-    if (label === 'Home') return location.pathname === '/' && !location.hash;
+    if (label === 'Home') return location.pathname === '/' && (!location.hash || location.hash === '#vision');
     if (label === 'Services') return isServicePage || location.hash === '#services';
     if (label === 'About') return location.hash === '#about';
     if (label === 'Contact') return location.pathname === '/consultation';
