@@ -1,0 +1,38 @@
+export const projects = [
+  {
+    id: 'musato',
+    title: 'Musato Technologies',
+    type: 'Mobile Application',
+    category: 'Software',
+    meta: '2025 · Case Study',
+    image: '/images/work-digital.jpg',
+    summary: 'A mobile application project featured in our software portfolio.',
+  },
+  {
+    id: 'asg',
+    title: 'ASG IT Support Services',
+    type: 'Web App Services',
+    category: 'Software',
+    meta: '2025 · Case Study',
+    image: '/images/work-business.jpg',
+    summary: 'A web application services project featured in our software portfolio.',
+  },
+  {
+    id: 'campaign-management',
+    title: 'Digital Campaign Management',
+    type: 'Marketing Strategy',
+    category: 'Marketing',
+    meta: 'Service Spotlight',
+    image: '/images/marketing-hero.jpg',
+    service: 'marketing',
+  },
+  {
+    id: 'strategic-planning',
+    title: 'Strategic Planning',
+    type: 'Business Consulting',
+    category: 'Consulting',
+    meta: 'Service Spotlight',
+    image: '/images/business-hero.jpg',
+    service: 'business',
+  },
+];
