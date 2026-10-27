@@ -43,6 +43,19 @@ describe('navigation and action typography', () => {
     expect(getComputedStyle(document.querySelector('.menu-toggle')).justifySelf).toBe('end');
   });
 
+  it('gives the dashboard a viewport-sized minimum without fixing its height', () => {
+    document.body.innerHTML = '<section class="home-hero"><div class="home-hero__inner">Dashboard content</div><a class="home-hero__scroll" href="/#vision">Scroll to explore</a></section>';
+    const hero = getComputedStyle(document.querySelector('.home-hero'));
+    const header = getComputedStyle(document.documentElement);
+    expect(hero.display).toBe('grid');
+    expect(hero.gridTemplateRows).toBe('minmax(min-content, 1fr) auto');
+    expect(hero.minHeight).toBe('calc(100dvh - var(--header-min-height))');
+    expect(hero.height === '' || hero.height === 'auto').toBe(true);
+    expect(header.getPropertyValue('--header-min-height').trim()).toBe('126px');
+    expect(styles).toContain('min-height: calc(100vh - var(--header-min-height))');
+    expect(styles).toContain('--header-min-height: 90px');
+  });
+
   it('balances the home hero and allows its columns to wrap', () => {
     document.body.innerHTML = `
       <section class="home-hero"><div class="home-hero__inner">

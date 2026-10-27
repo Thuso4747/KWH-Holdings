@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import ScrollManager from './components/ScrollManager';
 import HomePage from './pages/HomePage';
 import ServicePage from './pages/ServicePage';
 import ConsultationPage from './pages/ConsultationPage';
@@ -47,6 +48,34 @@ describe('navigation and home sections', () => {
     expect(screen.queryByRole('heading', { name: 'Featured Work' })).not.toBeInTheDocument();
     expect(document.querySelector('#work')).toBeNull();
     expect(screen.queryByRole('button', { name: /view case study/i })).not.toBeInTheDocument();
+  });
+
+  it('provides a scroll link from the dashboard to the next section', () => {
+    renderAt(<HomePage />);
+    const link = screen.getByRole('link', { name: 'Scroll to explore' });
+    const hero = link.closest('.home-hero');
+    const vision = document.getElementById('vision');
+    expect(link).toHaveAttribute('href', '/#vision');
+    expect(vision).toHaveAttribute('aria-labelledby', 'home-visual-title');
+    expect(within(vision).getByRole('heading', { name: /from vision\s+to execution/i })).toBeInTheDocument();
+    expect(hero.nextElementSibling).toBe(vision);
+  });
+
+  it('scrolls to the vision section when the scroll link is activated', async () => {
+    const user = userEvent.setup();
+    const scrollIntoView = vi.spyOn(HTMLElement.prototype, 'scrollIntoView');
+    renderAt(<><ScrollManager /><HomePage /></>);
+    const vision = document.getElementById('vision');
+    scrollIntoView.mockClear();
+    await user.click(screen.getByRole('link', { name: 'Scroll to explore' }));
+    await waitFor(() => expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' }));
+    expect(scrollIntoView.mock.instances).toContain(vision);
+  });
+
+  it('keeps Home active when the vision section is linked directly', () => {
+    renderAt(<Header />, '/#vision');
+    const navigation = screen.getByRole('navigation', { name: 'Primary navigation' });
+    expect(within(navigation).getByRole('link', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
   });
 
   it('retains the project records and supplied Musato logo for future use', () => {
