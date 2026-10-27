@@ -25,6 +25,15 @@ describe('navigation and featured work', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
   });
 
+  it('uses the supplied strategy icon for the marketing department', () => {
+    renderAt(<HomePage />);
+    const card = screen.getByRole('heading', { name: 'Marketing Strategy' }).closest('article');
+    const icon = card.querySelector('.department-card__topline svg');
+    expect(icon).toHaveAttribute('viewBox', '0 0 256 256');
+    expect(icon).toHaveAttribute('aria-hidden', 'true');
+    expect(icon.querySelector('path')).toHaveAttribute('fill', 'currentColor');
+  });
+
   it('filters work and opens an accessible project dialog', async () => {
     const user = userEvent.setup();
     renderAt(<HomePage />);

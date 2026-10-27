@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowRight, ArrowUpRight, BarChart3, Code2, X, Zap } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, BarChart3, Code2, X } from 'lucide-react';
 import PageTitle from '../components/PageTitle';
+import { StrategyIcon } from '../components/StrategyIcon';
 import { departments } from '../data/services';
 import { projects } from '../data/projects';
 
-const icons = { marketing: Zap, business: BarChart3, software: Code2 };
+const icons = { marketing: StrategyIcon, business: BarChart3, software: Code2 };
 const filters = ['All Projects', 'Marketing', 'Consulting', 'Software'];
 
 function DepartmentCard({ department, index }) {
