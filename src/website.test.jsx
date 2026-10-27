@@ -69,9 +69,10 @@ describe('navigation and home sections', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
   });
 
-  it('provides a centred primary navigation and a dismissible hamburger menu on the home page', async () => {
+  it('provides centred home navigation and a dismissible mobile menu', async () => {
     const user = userEvent.setup();
     renderAt(<Header />);
+    expect(screen.getByRole('banner')).toHaveClass('site-header--home');
     const navigation = screen.getByRole('navigation', { name: 'Primary navigation' });
     expect(navigation).toHaveClass('primary-nav--inline');
     expect(within(navigation).getAllByRole('link').map((link) => link.textContent)).toEqual(['Home', 'Services', 'About', 'Contact']);
@@ -95,6 +96,39 @@ describe('navigation and home sections', () => {
     fireEvent.pointerDown(document.body);
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
     expect(menu).not.toBeVisible();
+  });
+
+  it('closes the home mobile menu and moves focus to navigation when the viewport widens', async () => {
+    const descriptor = Object.getOwnPropertyDescriptor(window, 'matchMedia');
+    const listeners = new Set();
+    let isDesktop = false;
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: () => ({
+        get matches() { return isDesktop; },
+        addEventListener: (_, listener) => listeners.add(listener),
+        removeEventListener: (_, listener) => listeners.delete(listener),
+      }),
+    });
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => { callback(0); return 1; });
+    try {
+      const user = userEvent.setup();
+      renderAt(<Header />);
+      const toggle = screen.getByRole('button', { name: 'Open navigation menu' });
+      await user.click(toggle);
+      expect(toggle).toHaveAttribute('aria-expanded', 'true');
+      isDesktop = true;
+      // A browser can blur the now-hidden mobile control before the media event.
+      act(() => {
+        toggle.blur();
+        listeners.forEach((listener) => listener({ matches: true }));
+      });
+      expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      expect(within(screen.getByRole('navigation', { name: 'Primary navigation' })).getByRole('link', { name: 'Home' })).toHaveFocus();
+    } finally {
+      if (descriptor) Object.defineProperty(window, 'matchMedia', descriptor);
+      else delete window.matchMedia;
+    }
   });
 
   it('uses the supplied animated icon for both menu controls', () => {
@@ -308,6 +342,7 @@ describe('navigation and home sections', () => {
   it('keeps the standard header on non-service pages', () => {
     renderAt(<Header />, '/consultation');
     expect(screen.getByRole('banner')).not.toHaveClass('site-header--service');
+    expect(screen.getByRole('banner')).not.toHaveClass('site-header--home');
     expect(screen.getByRole('link', { name: 'KWH Holdings home' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Show navigation' })).not.toBeInTheDocument();
   });

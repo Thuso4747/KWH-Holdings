@@ -15,22 +15,55 @@ const items = [
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuToggleRef = useRef(null);
+  const homeMenuHadFocus = useRef(false);
   const location = useLocation();
+  const isHomePage = location.pathname === '/';
   const isServicePage = /^\/(?:services\/(?:marketing|business|software)|marketing|business|software)\/?$/.test(location.pathname);
   const serviceHeader = useServiceHeader(isServicePage, location.pathname, menuOpen);
   const isServiceMenuOpen = isServicePage && menuOpen;
 
-  useLayoutEffect(() => { setMenuOpen(false); }, [location.pathname, location.search, location.hash]);
+  useLayoutEffect(() => {
+    homeMenuHadFocus.current = false;
+    setMenuOpen(false);
+  }, [location.pathname, location.search, location.hash]);
 
   // The standard dropdown is not modal: clicking outside dismisses it.
   useEffect(() => {
     if (!menuOpen || isServicePage) return undefined;
     const onPointerDown = (event) => {
-      if (!serviceHeader.headerRef.current?.contains(event.target)) setMenuOpen(false);
+      if (!serviceHeader.headerRef.current?.contains(event.target)) {
+        homeMenuHadFocus.current = false;
+        setMenuOpen(false);
+      }
     };
     document.addEventListener('pointerdown', onPointerDown);
     return () => document.removeEventListener('pointerdown', onPointerDown);
   }, [isServicePage, menuOpen, serviceHeader.headerRef]);
+
+  // The home menu is mobile-only; close it and preserve focus when widening.
+  useEffect(() => {
+    if (!isHomePage || !window.matchMedia) return undefined;
+    const desktop = window.matchMedia('(min-width: 761px)');
+    const onChange = (event) => {
+      if (!event.matches) return;
+      const header = serviceHeader.headerRef.current;
+      // CSS may hide the focused mobile control before this media event fires.
+      const focusWasInMenu = document.activeElement === menuToggleRef.current
+        || header?.querySelector('.primary-nav--dropdown')?.contains(document.activeElement)
+        || (homeMenuHadFocus.current && document.activeElement === document.body);
+      homeMenuHadFocus.current = false;
+      setMenuOpen(false);
+      if (focusWasInMenu) {
+        window.requestAnimationFrame(() => header?.querySelector('.primary-nav--inline a')?.focus({ preventScroll: true }));
+      }
+    };
+    if (desktop.addEventListener) desktop.addEventListener('change', onChange);
+    else desktop.addListener(onChange);
+    return () => {
+      if (desktop.removeEventListener) desktop.removeEventListener('change', onChange);
+      else desktop.removeListener(onChange);
+    };
+  }, [isHomePage, serviceHeader.headerRef]);
 
   // On small screens the transparent menu sits over the page as a modal.
   useLayoutEffect(() => {
@@ -95,10 +128,22 @@ export default function Header() {
     else setMenuOpen(!menuOpen);
   }
 
+  function handleHeaderFocus(event) {
+    if (isServicePage) serviceHeader.onFocus();
+    if (isHomePage) {
+      homeMenuHadFocus.current = event.target === menuToggleRef.current
+        || Boolean(event.target.closest('.primary-nav--dropdown'));
+    }
+  }
+
   function handleHeaderBlur(event) {
     // The modal backdrop handles outside clicks; do not unmount it on blur first.
     if (isServiceMenuOpen) return;
-    if (!event.currentTarget.contains(event.relatedTarget)) setMenuOpen(false);
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+      const widening = isHomePage && (window.matchMedia?.('(min-width: 761px)').matches ?? window.innerWidth > 760);
+      if (event.relatedTarget || !widening) homeMenuHadFocus.current = false;
+      setMenuOpen(false);
+    }
     if (isServicePage) serviceHeader.onBlur(event);
   }
 
@@ -161,11 +206,11 @@ export default function Header() {
       <header
         id="site-header"
         ref={serviceHeader.headerRef}
-        className={`site-header ${isServicePage ? 'site-header--service' : 'site-header--standard'} ${isServicePage && serviceHeader.overLightContent ? 'is-over-light' : ''} ${isServicePage && serviceHeader.isVisible ? 'is-revealed' : ''}`}
+        className={`site-header ${isServicePage ? 'site-header--service' : 'site-header--standard'} ${isHomePage ? 'site-header--home' : ''} ${isServicePage && serviceHeader.overLightContent ? 'is-over-light' : ''} ${isServicePage && serviceHeader.isVisible ? 'is-revealed' : ''}`}
         role={isServiceMenuOpen ? 'dialog' : undefined}
         aria-modal={isServiceMenuOpen ? 'true' : undefined}
         aria-label={isServiceMenuOpen ? 'Navigation menu' : undefined}
-        onFocusCapture={isServicePage ? serviceHeader.onFocus : undefined}
+        onFocusCapture={handleHeaderFocus}
         onBlurCapture={handleHeaderBlur}
         onKeyDownCapture={handleHeaderKeyDown}
       >

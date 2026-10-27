@@ -131,6 +131,15 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
   .site-header--standard .primary-nav--inline { display: none; }
 }
 
+/* The home header keeps its centred links on desktop without a menu button. */
+@media (min-width: 761px) {
+  .site-header--home .menu-toggle, .site-header--home .primary-nav--dropdown.is-open { display: none; }
+  @container (max-width: calc(14rem + 320px)) {
+    .site-header--home .header-inner { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 8px; padding-block: 12px; }
+    .site-header--home .primary-nav--inline { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 clamp(20px, 3vw, 40px); max-width: 100%; }
+  }
+}
+
 /* Service navigation floats over the photography, without a bar or logo. */
 .site-header--service .header-inner { min-height: 84px; justify-content: center; }
 .site-header--service .primary-nav { margin-right: 0; }
