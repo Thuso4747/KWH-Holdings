@@ -258,7 +258,10 @@ describe('navigation and featured work', () => {
       expect(within(card).getByText('KEY SERVICES')).toBeInTheDocument();
       const services = within(card).getByRole('list', { name: `${department.cardTitle} key services` });
       for (const service of department.bullets) expect(within(services).getByText(service)).toBeInTheDocument();
-      expect(within(card).getByRole('link', { name: `Learn more about ${department.cardTitle}` })).toHaveAttribute('href', `/services/${department.slug}`);
+      const link = within(card).getByRole('link', { name: `Learn more about ${department.cardTitle}` });
+      expect(link).toHaveAttribute('href', `/services/${department.slug}`);
+      expect(link).toHaveTextContent('Learn More');
+      expect(link.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
       expect(card.querySelector('img')).toHaveAttribute('src', department.image);
       expect(card.querySelector('img')).toHaveAttribute('alt', '');
     }
@@ -358,10 +361,19 @@ describe('service pages', () => {
     const card = screen.getByRole('heading', { name: 'Strategic Planning' }).closest('article');
     const toggle = within(card).getByRole('button', { name: 'Learn More' });
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(toggle.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+    const detail = document.getElementById(toggle.getAttribute('aria-controls'));
+    expect(detail).toHaveAttribute('hidden');
     await user.click(toggle);
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(toggle).toHaveAccessibleName('Show Less');
+    expect(toggle.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
     expect(within(card).getByText(/turn your vision into a clear set of priorities/i)).toBeVisible();
     expect(within(card).getByRole('link', { name: /discuss this service/i })).toHaveAttribute('href', '/consultation?service=business&focus=Strategic%20Planning');
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(toggle).toHaveAccessibleName('Learn More');
+    expect(detail).toHaveAttribute('hidden');
 
     const methodology = screen.getByRole('tab', { name: 'Methodology' });
     await user.click(methodology);

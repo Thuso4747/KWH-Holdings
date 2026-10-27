@@ -27,7 +27,7 @@ function DepartmentCard({ department, index }) {
           <ul role="list" aria-label={`${department.cardTitle} key services`}>{department.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>
         </div>
         <Link className="department-card__link" to={`/services/${department.slug}`} aria-label={`Learn more about ${department.cardTitle}`}>
-          <span>Learn More</span><ArrowUpRight size={17} aria-hidden="true" />
+          <span>Learn More</span><ArrowUpRight size={20} aria-hidden="true" />
         </Link>
       </div>
       <div className="department-card__image">

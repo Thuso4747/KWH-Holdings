@@ -17,7 +17,8 @@ function OfferingCard({ offering, service, index }) {
         <Link to={`/consultation?service=${service.slug}&focus=${encodeURIComponent(offering.title)}`}>Discuss this service <ArrowUpRight size={15} /></Link>
       </div>
       <button className="offering-card__toggle" type="button" aria-expanded={expanded} aria-controls={detailsId} onClick={() => setExpanded(!expanded)}>
-        {expanded ? 'Show Less' : 'Learn More'} {expanded ? <Minus size={17} /> : <ArrowRight size={17} />}
+        <span>{expanded ? 'Show Less' : 'Learn More'}</span>
+        {expanded ? <Minus size={19} aria-hidden="true" /> : <ArrowRight size={19} aria-hidden="true" />}
       </button>
     </article>
   );
