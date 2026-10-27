@@ -351,8 +351,15 @@ describe('navigation and featured work', () => {
   it('filters work and opens an accessible project dialog', async () => {
     const user = userEvent.setup();
     renderAt(<HomePage />);
-    expect(screen.getByText('Musato Technologies')).toBeInTheDocument();
-    expect(screen.getByText('ASG IT Support Services')).toBeInTheDocument();
+    const musatoCard = screen.getByRole('heading', { name: 'Musato Technologies' }).closest('article');
+    const cardLogo = within(musatoCard).getByRole('img', { name: 'Musato Technologies logo' });
+    expect(cardLogo).toHaveAttribute('src', '/images/musato-technologies-logo.png');
+    expect(cardLogo).toHaveAttribute('width', '1275');
+    expect(cardLogo).toHaveAttribute('height', '277');
+    expect(cardLogo.closest('.work-card__image')).not.toBeNull();
+    expect(musatoCard.querySelector('.work-card__image > img')).toHaveAttribute('src', '/images/work-digital.jpg');
+    const asgCard = screen.getByRole('heading', { name: 'ASG IT Support Services' }).closest('article');
+    expect(within(asgCard).queryByRole('img', { name: 'Musato Technologies logo' })).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Marketing', pressed: false }));
     expect(screen.getByText('Digital Campaign Management', { selector: '.work-card h3' })).toBeInTheDocument();
@@ -363,10 +370,19 @@ describe('navigation and featured work', () => {
     await user.click(caseStudyButton);
     const dialog = screen.getByRole('dialog', { name: 'Musato Technologies' });
     expect(within(dialog).getByText(/mobile application project/i)).toBeInTheDocument();
+    const dialogLogo = within(dialog).getByRole('img', { name: 'Musato Technologies logo' });
+    expect(dialogLogo).toHaveAttribute('src', '/images/musato-technologies-logo.png');
+    expect(dialogLogo.closest('.project-modal__image')).not.toBeNull();
+    expect(dialog.querySelector('.project-modal__image > img')).toHaveAttribute('src', '/images/work-digital.jpg');
     expect(screen.getByRole('button', { name: /close project details/i })).toHaveFocus();
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(caseStudyButton).toHaveFocus();
+
+    await user.click(screen.getAllByRole('button', { name: /view case study/i })[1]);
+    const asgDialog = screen.getByRole('dialog', { name: 'ASG IT Support Services' });
+    expect(within(asgDialog).queryByRole('img', { name: 'Musato Technologies logo' })).not.toBeInTheDocument();
+    await user.keyboard('{Escape}');
   });
 });
 

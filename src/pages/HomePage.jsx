@@ -56,6 +56,15 @@ function HomeVisual() {
   );
 }
 
+function ProjectLogo({ project }) {
+  if (!project.logo) return null;
+  return (
+    <div className="project-logo">
+      <img src={project.logo.src} alt={`${project.title} logo`} width={project.logo.width} height={project.logo.height} />
+    </div>
+  );
+}
+
 function ProjectModal({ project, onClose }) {
   const dialogRef = useRef(null);
   const closeRef = useRef(null);
@@ -88,7 +97,10 @@ function ProjectModal({ project, onClose }) {
     <div className="modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
       <div className="project-modal" role="dialog" aria-modal="true" aria-labelledby="project-modal-title" ref={dialogRef}>
         <button className="modal-close" type="button" aria-label="Close project details" onClick={onClose} ref={closeRef}><X size={21} /></button>
-        <img src={project.image} alt="" />
+        <div className="project-modal__image">
+          <img src={project.image} alt="" />
+          <ProjectLogo project={project} />
+        </div>
         <div className="project-modal__body">
           <p className="eyebrow">FEATURED WORK / {project.category.toUpperCase()}</p>
           <h2 id="project-modal-title">{project.title}</h2>
@@ -134,6 +146,7 @@ function FeaturedWork() {
             <article className="work-card" key={project.id}>
               <div className="work-card__image">
                 <img src={project.image} alt="" loading="lazy" />
+                <ProjectLogo project={project} />
                 <span className="work-card__category">{project.category} / {project.service ? 'CAPABILITY' : 'FEATURED PROJECT'}</span>
                 <ArrowUpRight className="work-card__image-icon" size={23} aria-hidden="true" />
               </div>

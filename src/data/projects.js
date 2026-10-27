@@ -6,6 +6,7 @@ export const projects = [
     category: 'Software',
     meta: '2025 · Case Study',
     image: '/images/work-digital.jpg',
+    logo: { src: '/images/musato-technologies-logo.png', width: 1275, height: 277 },
     summary: 'A mobile application project featured in our software portfolio.',
   },
   {

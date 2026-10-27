@@ -56,3 +56,20 @@ describe('navigation and action typography', () => {
     }
   });
 });
+
+describe('project imagery', () => {
+  it('keeps project logos contained rather than cropped like the cover photos', () => {
+    document.body.innerHTML = `
+      <div class="work-card__image"><img alt="" /><div class="project-logo"><img alt="Brand" /></div></div>
+      <div class="project-modal__image"><img alt="" /><div class="project-logo"><img alt="Brand" /></div></div>
+    `;
+    for (const photo of document.querySelectorAll('.work-card__image > img, .project-modal__image > img')) {
+      expect(getComputedStyle(photo).objectFit).toBe('cover');
+    }
+    for (const logo of document.querySelectorAll('.project-logo img')) {
+      expect(getComputedStyle(logo).objectFit).toBe('contain');
+      expect(getComputedStyle(logo).height).toBe('auto');
+      expect(getComputedStyle(logo).maxWidth).toBe('300px');
+    }
+  });
+});
