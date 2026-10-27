@@ -16,6 +16,8 @@ describe('navigation and featured work', () => {
   it('opens and closes the mobile navigation when a link is selected', async () => {
     const user = userEvent.setup();
     renderAt(<Header />);
+    const homeLink = screen.getByRole('link', { name: 'KWH Holdings home' });
+    expect(within(homeLink).getByRole('img', { name: 'KWH Holdings' })).toHaveAttribute('src', '/images/kwh-logo.png');
     const toggle = screen.getByRole('button', { name: /open navigation/i });
     await user.click(toggle);
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
