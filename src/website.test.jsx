@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import Header from './components/Header';
@@ -23,6 +23,109 @@ describe('navigation and featured work', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
     await user.click(screen.getByRole('link', { name: 'Contact' }));
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('reveals the service navigation near the top and hides it after the pointer leaves', async () => {
+    renderAt(<Header />, '/services/marketing');
+    const header = screen.getByRole('banner');
+    expect(header).toHaveClass('site-header--service');
+    expect(header).not.toHaveClass('is-revealed');
+
+    fireEvent.mouseMove(window, { clientY: 30 });
+    expect(header).toHaveClass('is-revealed');
+    fireEvent.mouseMove(window, { clientY: 300 });
+    await waitFor(() => expect(header).not.toHaveClass('is-revealed'));
+  });
+
+  it('reveals the service navigation on upward scroll and hides it on downward scroll', () => {
+    const scrollYDescriptor = Object.getOwnPropertyDescriptor(window, 'scrollY');
+    Object.defineProperty(window, 'scrollY', { configurable: true, writable: true, value: 0 });
+    vi.useFakeTimers();
+    try {
+      renderAt(<Header />, '/services/business');
+      const header = screen.getByRole('banner');
+      act(() => vi.advanceTimersByTime(150));
+      window.scrollY = 500;
+      fireEvent.scroll(window);
+      expect(header).not.toHaveClass('is-revealed');
+      window.scrollY = 300;
+      fireEvent.scroll(window);
+      expect(header).toHaveClass('is-revealed');
+      window.scrollY = 600;
+      fireEvent.scroll(window);
+      expect(header).not.toHaveClass('is-revealed');
+    } finally {
+      vi.useRealTimers();
+      Object.defineProperty(window, 'scrollY', scrollYDescriptor);
+    }
+  });
+
+  it('ignores touch-generated mouse movement when deciding whether to hide on scroll', () => {
+    const scrollYDescriptor = Object.getOwnPropertyDescriptor(window, 'scrollY');
+    Object.defineProperty(window, 'scrollY', { configurable: true, writable: true, value: 0 });
+    vi.useFakeTimers();
+    try {
+      renderAt(<Header />, '/services/business');
+      const header = screen.getByRole('banner');
+      act(() => vi.advanceTimersByTime(150));
+      const touch = new Event('pointerdown');
+      Object.defineProperty(touch, 'pointerType', { value: 'touch' });
+      fireEvent(window, touch);
+      fireEvent.mouseMove(window, { clientY: 30 });
+      expect(header).not.toHaveClass('is-revealed');
+      window.scrollY = 500;
+      fireEvent.scroll(window);
+      window.scrollY = 300;
+      fireEvent.scroll(window);
+      expect(header).toHaveClass('is-revealed');
+      window.scrollY = 600;
+      fireEvent.scroll(window);
+      expect(header).not.toHaveClass('is-revealed');
+    } finally {
+      vi.useRealTimers();
+      Object.defineProperty(window, 'scrollY', scrollYDescriptor);
+    }
+  });
+
+  it('opens and closes the service navigation with the mobile trigger', async () => {
+    const widthDescriptor = Object.getOwnPropertyDescriptor(window, 'innerWidth');
+    Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: 390 });
+    try {
+      const user = userEvent.setup();
+      renderAt(<Header />, '/services/software');
+      const header = screen.getByRole('banner');
+      const trigger = screen.getByRole('button', { name: 'Show navigation' });
+      await user.click(trigger);
+      expect(header).toHaveClass('is-revealed');
+      const close = screen.getByRole('button', { name: 'Close navigation menu' });
+      expect(close).toHaveAttribute('aria-expanded', 'true');
+      await user.click(close);
+      expect(header).not.toHaveClass('is-revealed');
+      await waitFor(() => expect(trigger).toHaveFocus());
+    } finally {
+      Object.defineProperty(window, 'innerWidth', widthDescriptor);
+    }
+  });
+
+  it('reveals service navigation for keyboard focus and returns focus on Escape', async () => {
+    const user = userEvent.setup();
+    renderAt(<Header />, '/services/software');
+    const header = screen.getByRole('banner');
+    const trigger = screen.getByRole('button', { name: 'Show navigation' });
+    await user.tab();
+    expect(trigger).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole('link', { name: 'KWH Holdings home' })).toHaveFocus();
+    expect(header).toHaveClass('is-revealed');
+    await user.keyboard('{Escape}');
+    expect(header).not.toHaveClass('is-revealed');
+    await waitFor(() => expect(trigger).toHaveFocus());
+  });
+
+  it('keeps the standard header on non-service pages', () => {
+    renderAt(<Header />, '/consultation');
+    expect(screen.getByRole('banner')).not.toHaveClass('site-header--service');
+    expect(screen.queryByRole('button', { name: 'Show navigation' })).not.toBeInTheDocument();
   });
 
   it('uses the supplied strategy icon for the marketing department', () => {
