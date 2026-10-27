@@ -64,8 +64,37 @@ describe('navigation and home sections', () => {
     const toggle = screen.getByRole('button', { name: /open navigation/i });
     await user.click(toggle);
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
-    await user.click(screen.getByRole('link', { name: 'Contact' }));
+    const menu = screen.getByRole('navigation', { name: 'Navigation menu' });
+    await user.click(within(menu).getByRole('link', { name: 'Contact' }));
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('provides a centred primary navigation and a dismissible hamburger menu on the home page', async () => {
+    const user = userEvent.setup();
+    renderAt(<Header />);
+    const navigation = screen.getByRole('navigation', { name: 'Primary navigation' });
+    expect(navigation).toHaveClass('primary-nav--inline');
+    expect(within(navigation).getAllByRole('link').map((link) => link.textContent)).toEqual(['Home', 'Services', 'About', 'Contact']);
+    const toggle = screen.getByRole('button', { name: 'Open navigation menu' });
+    const menu = document.getElementById(toggle.getAttribute('aria-controls'));
+    expect(toggle.querySelector('svg.menu-icon animate')).not.toBeNull();
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(menu).not.toBeVisible();
+
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(menu).toBeVisible();
+    expect(within(menu).getByRole('link', { name: 'Services' })).toHaveAttribute('href', '/#services');
+    expect(within(menu).getByRole('link', { name: 'Start a project' })).toHaveAttribute('href', '/consultation');
+    await user.keyboard('{Escape}');
+    expect(toggle).toHaveFocus();
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(menu).not.toBeVisible();
+
+    await user.click(toggle);
+    fireEvent.pointerDown(document.body);
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(menu).not.toBeVisible();
   });
 
   it('uses the supplied animated icon for both menu controls', () => {

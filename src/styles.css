@@ -110,6 +110,27 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
 .primary-nav > a:hover::after, .primary-nav > a.is-active::after { right: 0; }
 .menu-toggle, .mobile-nav-cta, .service-menu-backdrop { display: none; }
 
+/* Keep the main links truly centred between the logo and the menu control. */
+.site-header--standard { container-type: inline-size; }
+.site-header--standard .header-inner { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: clamp(16px, 3vw, 40px); }
+.site-header--standard .header-brand { justify-self: start; }
+.site-header--standard .primary-nav--inline { margin: 0; }
+.site-header--standard .menu-toggle { display: grid; place-items: center; justify-self: end; width: 44px; height: 44px; padding: 0; border: 0; background: transparent; color: #293b3b; }
+.site-header--standard .primary-nav--dropdown {
+  position: absolute; z-index: 1; top: calc(100% - 12px); right: max(32px, calc((100% - var(--container)) / 2));
+  display: none; align-items: stretch; gap: 0; width: min(320px, calc(100% - 40px)); max-height: min(30rem, calc(100vh - 140px)); max-height: min(30rem, calc(100dvh - 140px));
+  overflow-y: auto; overscroll-behavior: contain; margin: 0; padding: 12px 20px 20px; border-radius: 8px; background: #fff; box-shadow: 0 18px 40px rgba(35,52,53,.15);
+}
+.site-header--standard .primary-nav--dropdown.is-open { display: flex; flex-direction: column; }
+.site-header--standard .primary-nav--dropdown > a:not(.mobile-nav-cta) { padding: 14px 2px; border-bottom: 1px solid #edf1f0; font-size: .92rem; }
+.site-header--standard .primary-nav--dropdown > a:not(.mobile-nav-cta)::after { display: none; }
+.site-header--standard .primary-nav--dropdown .mobile-nav-cta { display: flex; justify-content: space-between; margin-top: 14px; padding: 14px; border-radius: 6px; background: #5e7b7c; color: #fff; font-size: .84rem; font-weight: 600; }
+/* Enlarged text also switches to the menu before links collide with the logo. */
+@container (max-width: calc(14rem + 320px)) {
+  .site-header--standard .header-inner { display: flex; gap: 20px; }
+  .site-header--standard .primary-nav--inline { display: none; }
+}
+
 /* Service navigation floats over the photography, without a bar or logo. */
 .site-header--service .header-inner { min-height: 84px; justify-content: center; }
 .site-header--service .primary-nav { margin-right: 0; }
@@ -403,6 +424,8 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
   .container { width: min(100% - 40px, var(--container)); }
   .section { padding-block: 76px; }
   .header-inner { min-height: 90px; gap: 20px; }
+  .site-header--standard .header-inner { display: flex; gap: 20px; }
+  .site-header--standard .primary-nav--dropdown { top: calc(100% - 5px); left: 20px; right: 20px; width: auto; max-height: calc(100vh - 100px); max-height: calc(100dvh - 100px); }
   .brand { width: 75px; }
   .service-nav-trigger { top: 16px; right: 20px; }
   .menu-toggle { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; background: transparent; color: #293b3b; }

@@ -20,7 +20,17 @@ export default function Header() {
   const serviceHeader = useServiceHeader(isServicePage, location.pathname, menuOpen);
   const isServiceMenuOpen = isServicePage && menuOpen;
 
-  useLayoutEffect(() => { setMenuOpen(false); }, [location.pathname]);
+  useLayoutEffect(() => { setMenuOpen(false); }, [location.pathname, location.search, location.hash]);
+
+  // The standard dropdown is not modal: clicking outside dismisses it.
+  useEffect(() => {
+    if (!menuOpen || isServicePage) return undefined;
+    const onPointerDown = (event) => {
+      if (!serviceHeader.headerRef.current?.contains(event.target)) setMenuOpen(false);
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [isServicePage, menuOpen, serviceHeader.headerRef]);
 
   // On small screens the transparent menu sits over the page as a modal.
   useLayoutEffect(() => {
@@ -93,10 +103,15 @@ export default function Header() {
   }
 
   function handleHeaderKeyDown(event) {
-    if (!isServicePage) return;
     if (event.key === 'Escape') {
-      event.preventDefault();
-      closeServiceNavigation();
+      if (isServicePage) {
+        event.preventDefault();
+        closeServiceNavigation();
+      } else if (menuOpen) {
+        event.preventDefault();
+        setMenuOpen(false);
+        menuToggleRef.current?.focus({ preventScroll: true });
+      }
       return;
     }
     if (!isServiceMenuOpen || event.key !== 'Tab') return;
@@ -110,6 +125,20 @@ export default function Header() {
       event.preventDefault();
       first?.focus();
     }
+  }
+
+  function renderNavigationLinks() {
+    return items.map((item) => (
+      <Link
+        key={item.label}
+        to={item.to}
+        className={isActive(item.label) ? 'is-active' : ''}
+        aria-current={isActive(item.label) ? 'page' : undefined}
+        onClick={() => setMenuOpen(false)}
+      >
+        {item.label}
+      </Link>
+    ));
   }
 
   return (
@@ -132,7 +161,7 @@ export default function Header() {
       <header
         id="site-header"
         ref={serviceHeader.headerRef}
-        className={`site-header ${isServicePage ? 'site-header--service' : ''} ${isServicePage && serviceHeader.overLightContent ? 'is-over-light' : ''} ${isServicePage && serviceHeader.isVisible ? 'is-revealed' : ''}`}
+        className={`site-header ${isServicePage ? 'site-header--service' : 'site-header--standard'} ${isServicePage && serviceHeader.overLightContent ? 'is-over-light' : ''} ${isServicePage && serviceHeader.isVisible ? 'is-revealed' : ''}`}
         role={isServiceMenuOpen ? 'dialog' : undefined}
         aria-modal={isServiceMenuOpen ? 'true' : undefined}
         aria-label={isServiceMenuOpen ? 'Navigation menu' : undefined}
@@ -141,7 +170,12 @@ export default function Header() {
         onKeyDownCapture={handleHeaderKeyDown}
       >
         <div className="header-inner container">
-          {!isServicePage && <div onClick={() => setMenuOpen(false)}><Logo /></div>}
+          {!isServicePage && <div className="header-brand" onClick={() => setMenuOpen(false)}><Logo /></div>}
+          {!isServicePage && (
+            <nav className="primary-nav primary-nav--inline" aria-label="Primary navigation">
+              {renderNavigationLinks()}
+            </nav>
+          )}
           <button
             ref={menuToggleRef}
             type="button"
@@ -153,18 +187,13 @@ export default function Header() {
           >
             {menuOpen ? <X size={24} aria-hidden="true" /> : <MenuIcon aria-hidden="true" />}
           </button>
-          <nav id="primary-navigation" className={`primary-nav ${menuOpen ? 'is-open' : ''}`} aria-label="Primary navigation">
-            {items.map((item) => (
-              <Link
-                key={item.label}
-                to={item.to}
-                className={isActive(item.label) ? 'is-active' : ''}
-                aria-current={isActive(item.label) ? 'page' : undefined}
-                onClick={() => setMenuOpen(false)}
-              >
-                {item.label}
-              </Link>
-            ))}
+          <nav
+            id="primary-navigation"
+            className={`primary-nav ${!isServicePage ? 'primary-nav--dropdown' : ''} ${menuOpen ? 'is-open' : ''}`}
+            aria-label={isServicePage ? 'Primary navigation' : 'Navigation menu'}
+            hidden={!isServicePage && !menuOpen}
+          >
+            {renderNavigationLinks()}
             <Link className="mobile-nav-cta" to="/consultation" onClick={() => setMenuOpen(false)}>Start a project <span aria-hidden="true">↗</span></Link>
           </nav>
         </div>

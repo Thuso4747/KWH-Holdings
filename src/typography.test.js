@@ -31,6 +31,18 @@ describe('navigation and action typography', () => {
     expect(serviceStyle.fontWeight).not.toBe('700');
   });
 
+  it('centres the standard navigation between the brand and menu control', () => {
+    document.body.innerHTML = `
+      <header class="site-header site-header--standard"><div class="header-inner">
+        <div class="header-brand">Brand</div><nav class="primary-nav primary-nav--inline">Home</nav><button class="menu-toggle">Menu</button>
+      </div></header>
+    `;
+    const inner = getComputedStyle(document.querySelector('.header-inner'));
+    expect(inner.display).toBe('grid');
+    expect(inner.gridTemplateColumns).toBe('minmax(0, 1fr) auto minmax(0, 1fr)');
+    expect(getComputedStyle(document.querySelector('.menu-toggle')).justifySelf).toBe('end');
+  });
+
   it('balances the home hero and allows its columns to wrap', () => {
     document.body.innerHTML = `
       <section class="home-hero"><div class="home-hero__inner">
