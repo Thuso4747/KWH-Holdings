@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import Header from './components/Header';
+import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import ServicePage from './pages/ServicePage';
 import ConsultationPage from './pages/ConsultationPage';
@@ -11,6 +12,22 @@ import { departments, servicePages } from './data/services';
 function renderAt(element, path = '/') {
   return render(<MemoryRouter initialEntries={[path]}>{element}</MemoryRouter>);
 }
+
+describe('footer', () => {
+  it('keeps contact navigation without displaying direct contact details', () => {
+    renderAt(<><ConsultationPage /><Footer /></>, '/consultation');
+    const footer = screen.getByRole('contentinfo');
+    expect(within(footer).queryByText('072 831 5667')).not.toBeInTheDocument();
+    expect(within(footer).queryByText('haroldlowa25@gmail.com')).not.toBeInTheDocument();
+    expect(footer.querySelector('a[href^="tel:"], a[href^="mailto:"]')).toBeNull();
+    expect(within(footer).getByRole('link', { name: 'Contact Us' })).toHaveAttribute('href', '/consultation');
+    expect(within(footer).getByRole('link', { name: 'Free Consultation' })).toHaveAttribute('href', '/consultation');
+
+    const main = screen.getByRole('main');
+    expect(within(main).getByRole('link', { name: '072 831 5667' })).toHaveAttribute('href', 'tel:+27728315667');
+    expect(within(main).getByRole('link', { name: 'haroldlowa25@gmail.com' })).toHaveAttribute('href', 'mailto:haroldlowa25@gmail.com');
+  });
+});
 
 describe('navigation and featured work', () => {
   it('opens and closes the mobile navigation when a link is selected', async () => {

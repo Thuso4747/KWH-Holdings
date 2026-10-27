@@ -33,8 +33,6 @@ export default function Footer() {
             <ul>
               <li><Link to="/consultation">Contact Us</Link></li>
               <li><Link to="/consultation">Free Consultation</Link></li>
-              <li><a href="tel:+27728315667">072 831 5667</a></li>
-              <li><a href="mailto:haroldlowa25@gmail.com">haroldlowa25@gmail.com</a></li>
               <li><Link to="/privacy">Privacy Policy</Link></li>
             </ul>
           </div>
