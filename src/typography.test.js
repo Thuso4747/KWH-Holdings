@@ -28,10 +28,10 @@ describe('navigation and action typography', () => {
     expect(serviceStyle.fontWeight).not.toBe('700');
   });
 
-  it('keeps both Learn More actions regular weight and without an underline', () => {
+  it('keeps dashboard and service actions regular weight and without an underline', () => {
     document.body.innerHTML = `
       <a class="department-card__link" href="/services/marketing"><span>Learn More</span></a>
-      <button class="offering-card__toggle" type="button"><span>Learn More</span></button>
+      <button class="offering-card__toggle" type="button"><span>Show More</span></button>
     `;
     for (const action of document.querySelectorAll('.department-card__link, .offering-card__toggle')) {
       expect(getComputedStyle(action).fontWeight).toBe('400');

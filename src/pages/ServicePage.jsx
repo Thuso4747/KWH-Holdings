@@ -14,7 +14,7 @@ function OfferingCard({ offering, service, index }) {
         <p>{offering.description}</p>
         <ul className="tag-list" aria-label="Areas of expertise">{offering.tags.map((tag) => <li key={tag}>{tag}</li>)}</ul>
         <button className="offering-card__toggle" type="button" aria-expanded={expanded} aria-controls={detailsId} onClick={() => setExpanded(!expanded)}>
-          <span>{expanded ? 'Show Less' : 'Learn More'}</span>
+          <span>{expanded ? 'Show Less' : 'Show More'}</span>
           {expanded ? <Minus size={19} aria-hidden="true" /> : <ArrowRight size={19} aria-hidden="true" />}
         </button>
         <div className="offering-card__detail" id={detailsId} hidden={!expanded}>

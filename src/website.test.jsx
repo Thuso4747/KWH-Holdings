@@ -355,10 +355,31 @@ describe('service pages', () => {
       expect(within(row).getByText(offering.description)).toBeVisible();
       const tags = within(row).getByRole('list', { name: 'Areas of expertise' });
       expect(within(tags).getAllByRole('listitem').map((item) => item.textContent)).toEqual(offering.tags);
-      const toggle = within(row).getByRole('button', { name: 'Learn More' });
+      const toggle = within(row).getByRole('button', { name: 'Show More' });
       const detail = document.getElementById(toggle.getAttribute('aria-controls'));
       expect(toggle.compareDocumentPosition(detail) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
       expect(detail).toHaveTextContent(offering.detail);
+      expect(detail).toHaveAttribute('hidden');
+    }
+  });
+
+  it.each(Object.values(servicePages))('toggles Show More and Show Less for $label', async (service) => {
+    const user = userEvent.setup();
+    renderAt(<ServicePage service={service} />, `/services/${service.slug}`);
+    const section = screen.getByRole('region', { name: `Our ${service.shortLabel} Services` });
+    const toggles = within(section).getAllByRole('button', { name: 'Show More' });
+    expect(toggles).toHaveLength(service.offerings.length);
+
+    for (const toggle of toggles) {
+      const detail = document.getElementById(toggle.getAttribute('aria-controls'));
+      expect(detail).toHaveAttribute('hidden');
+      await user.click(toggle);
+      expect(toggle).toHaveAccessibleName('Show Less');
+      expect(toggle).toHaveAttribute('aria-expanded', 'true');
+      expect(detail).toBeVisible();
+      await user.click(toggle);
+      expect(toggle).toHaveAccessibleName('Show More');
+      expect(toggle).toHaveAttribute('aria-expanded', 'false');
       expect(detail).toHaveAttribute('hidden');
     }
   });
@@ -367,7 +388,7 @@ describe('service pages', () => {
     const user = userEvent.setup();
     renderAt(<ServicePage service={servicePages.business} />);
     const card = screen.getByRole('heading', { name: 'Strategic Planning' }).closest('article');
-    const toggle = within(card).getByRole('button', { name: 'Learn More' });
+    const toggle = within(card).getByRole('button', { name: 'Show More' });
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
     expect(toggle.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
     const detail = document.getElementById(toggle.getAttribute('aria-controls'));
@@ -380,7 +401,7 @@ describe('service pages', () => {
     expect(within(card).getByRole('link', { name: /discuss this service/i })).toHaveAttribute('href', '/consultation?service=business&focus=Strategic%20Planning');
     await user.click(toggle);
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
-    expect(toggle).toHaveAccessibleName('Learn More');
+    expect(toggle).toHaveAccessibleName('Show More');
     expect(detail).toHaveAttribute('hidden');
 
     const tabs = screen.getAllByRole('tab');
