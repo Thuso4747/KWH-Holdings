@@ -30,9 +30,6 @@ function DepartmentCard({ department, index }) {
           <span>Learn More</span><ArrowUpRight size={20} aria-hidden="true" />
         </Link>
       </div>
-      <div className="department-card__image">
-        <img src={department.image} alt="" width={department.imageWidth} height={department.imageHeight} loading="lazy" decoding="async" />
-      </div>
     </article>
   );
 }

@@ -167,10 +167,10 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
 .section-heading--center > p:not(.eyebrow) { max-width: 650px; margin: 0 auto; }
 .departments-heading { display: grid; grid-template-columns: 1fr minmax(0, .9fr); align-items: end; gap: 48px; margin-bottom: 46px; }
 .departments-heading .eyebrow { margin-bottom: 14px; }
-.departments-heading h2 { margin-bottom: 0; }
+.departments-heading h2 { margin-bottom: 0; overflow-wrap: anywhere; }
 .departments-heading > p:not(.eyebrow) { max-width: 500px; margin: 0; justify-self: end; }
 .department-grid { display: block; }
-.department-card { display: grid; grid-template-areas: 'index identity body image'; grid-template-columns: 52px minmax(0, .85fr) minmax(0, 1.15fr) minmax(0, 1fr); align-items: start; gap: clamp(20px, 2.2vw, 32px); min-width: 0; padding: 32px 0; border-top: 1px solid #d8e2e0; }
+.department-card { display: grid; grid-template-areas: 'index identity body'; grid-template-columns: 52px minmax(0, .85fr) minmax(0, 1.15fr); align-items: start; gap: clamp(20px, 2.2vw, 32px); min-width: 0; padding: 32px 0; border-top: 1px solid #d8e2e0; }
 .department-card:last-child { border-bottom: 1px solid #d8e2e0; }
 .department-card__index { grid-area: index; color: #607c7b; font-size: .72rem; font-weight: 700; letter-spacing: .08em; line-height: 1.7; }
 .department-card__identity { grid-area: identity; min-width: 0; }
@@ -188,14 +188,6 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
 .department-card__link:hover, .department-card__link:focus-visible { color: #1e3e3f; }
 .department-card__link:hover svg, .department-card__link:focus-visible svg { transform: translate(4px, -4px); }
 .department-card__link:focus-visible, .offering-card__toggle:focus-visible { outline: 2px solid #2f5758; outline-offset: 3px; }
-.department-card__image { grid-area: image; position: relative; width: 100%; aspect-ratio: 16 / 10; overflow: hidden; background: #dfe6e5; }
-.department-card__image img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
-.department-card--marketing .department-card__image img { object-position: 55% 54%; }
-.department-card--business .department-card__image img { object-position: 56% 52%; }
-.department-card--software .department-card__image img { object-position: 60% 50%; }
-@media (hover: hover) {
-  .department-card:hover .department-card__image img { transform: scale(1.04); }
-}
 .approach-section { margin-top: clamp(80px, 8vw, 110px); }
 .approach-heading { display: grid; grid-template-columns: 1fr minmax(0, .9fr); align-items: end; gap: 48px; }
 .approach-heading .eyebrow { margin-bottom: 14px; }
@@ -434,8 +426,6 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
 @media (max-width: 1000px) {
   .home-hero__inner { grid-template-columns: minmax(0, 1fr); gap: 32px; padding-top: 80px; padding-bottom: 90px; }
   .home-hero__summary > p { max-width: 680px; }
-  .department-card { grid-template-areas: 'index identity image' '. body image'; grid-template-columns: 52px minmax(0, 1fr) minmax(0, 1fr); gap: 14px 24px; }
-  .department-card__image { height: 100%; min-height: 260px; aspect-ratio: auto; }
   .work-card__meta { grid-template-columns: 1.15fr 1fr 1fr; }
   .work-card__meta > div { padding-inline: 10px; }
   .footer-grid { gap: 30px; }
@@ -506,9 +496,8 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
   .section-heading > p:not(.eyebrow) { font-size: .91rem; }
   .departments-heading { grid-template-columns: 1fr; gap: 15px; margin-bottom: 32px; }
   .departments-heading > p:not(.eyebrow) { justify-self: start; }
-  .department-card { grid-template-areas: 'index identity' '. body' 'image image'; grid-template-columns: 40px minmax(0, 1fr); gap: 16px 14px; padding: 28px 0; }
+  .department-card { grid-template-areas: 'index identity' '. body'; grid-template-columns: 40px minmax(0, 1fr); gap: 16px 14px; padding: 28px 0; }
   .department-card__topline { margin-bottom: 12px; }
-  .department-card__image { height: auto; min-height: 0; aspect-ratio: 16 / 9; }
   .department-card ul { grid-template-columns: 1fr; }
   .approach-section { margin-top: 80px; }
   .approach-heading { grid-template-columns: minmax(0, 1fr); gap: 16px; }
@@ -584,7 +573,7 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
-  .department-card:hover .department-card__image img, .department-card__link:hover svg, .department-card__link:focus-visible svg, .offering-card__toggle[aria-expanded='false']:hover svg, .offering-card__toggle[aria-expanded='false']:focus-visible svg, .home-visual__links a:hover svg { transform: none; }
+  .department-card__link:hover svg, .department-card__link:focus-visible svg, .offering-card__toggle[aria-expanded='false']:hover svg, .offering-card__toggle[aria-expanded='false']:focus-visible svg, .home-visual__links a:hover svg { transform: none; }
   /* The menu's SVG animations are SMIL, not CSS animations. */
   .menu-icon path { stroke-dasharray: none !important; stroke-dashoffset: 0 !important; }
 }
