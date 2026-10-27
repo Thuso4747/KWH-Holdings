@@ -6,7 +6,7 @@ import Header from './components/Header';
 import HomePage from './pages/HomePage';
 import ServicePage from './pages/ServicePage';
 import ConsultationPage from './pages/ConsultationPage';
-import { servicePages } from './data/services';
+import { departments, servicePages } from './data/services';
 
 function renderAt(element, path = '/') {
   return render(<MemoryRouter initialEntries={[path]}>{element}</MemoryRouter>);
@@ -229,6 +229,20 @@ describe('navigation and featured work', () => {
     expect(screen.getByRole('banner')).not.toHaveClass('site-header--service');
     expect(screen.getByRole('link', { name: 'KWH Holdings home' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Show navigation' })).not.toBeInTheDocument();
+  });
+
+  it('shows each department with its services and a distinct accessible link', () => {
+    renderAt(<HomePage />);
+    const section = screen.getByRole('region', { name: 'Our Departments' });
+    expect(within(section).getAllByRole('article')).toHaveLength(3);
+    for (const department of departments) {
+      const card = within(section).getByRole('heading', { name: department.cardTitle }).closest('article');
+      expect(within(card).getByText('KEY SERVICES')).toBeInTheDocument();
+      for (const service of department.bullets) expect(within(card).getByText(service)).toBeInTheDocument();
+      expect(within(card).getByRole('link', { name: `Learn more about ${department.cardTitle}` })).toHaveAttribute('href', `/services/${department.slug}`);
+      expect(card.querySelector('img')).toHaveAttribute('src', department.image);
+      expect(card.querySelector('img')).toHaveAttribute('alt', '');
+    }
   });
 
   it('uses the supplied strategy icon for the marketing department', () => {

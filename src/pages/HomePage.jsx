@@ -14,15 +14,23 @@ const filters = ['All Projects', 'Marketing', 'Consulting', 'Software'];
 function DepartmentCard({ department, index }) {
   const Icon = icons[department.slug];
   return (
-    <article className={`department-card department-card--${department.slug}`} style={{ backgroundImage: `url(${department.image})` }}>
+    <article className={`department-card department-card--${department.slug}`}>
+      <div className="department-card__image">
+        <img src={department.image} alt="" width="1376" height="768" loading="lazy" decoding="async" />
+      </div>
       <div className="department-card__content">
         <div className="department-card__topline"><span>0{index + 1} / OUR EXPERTISE</span><Icon size={23} strokeWidth={1.6} aria-hidden="true" /></div>
         <div className="department-card__body">
           <h3>{department.cardTitle}</h3>
           <p>{department.cardDescription}</p>
-          <ul>{department.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>
+          <div className="department-card__services">
+            <p className="department-card__services-label">KEY SERVICES</p>
+            <ul>{department.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>
+          </div>
         </div>
-        <Link className="department-card__link" to={`/services/${department.slug}`}>Learn More <ArrowRight size={17} aria-hidden="true" /></Link>
+        <Link className="department-card__link" to={`/services/${department.slug}`} aria-label={`Learn more about ${department.cardTitle}`}>
+          <span>Learn More</span><ArrowRight size={18} aria-hidden="true" />
+        </Link>
       </div>
     </article>
   );
@@ -147,11 +155,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="departments-section section" id="services">
+      <section className="departments-section section" id="services" aria-labelledby="departments-title">
         <div className="container">
-          <div className="section-heading section-heading--left">
-            <p className="eyebrow">WHAT WE DO</p>
-            <h2>Our Departments</h2>
+          <div className="section-heading departments-heading">
+            <div>
+              <p className="eyebrow">WHAT WE DO</p>
+              <h2 id="departments-title">Our Departments</h2>
+            </div>
             <p>Comprehensive solutions across three core areas of expertise, designed to accelerate your business growth and digital transformation.</p>
           </div>
           <div className="department-grid">{departments.map((department, index) => <DepartmentCard key={department.slug} department={department} index={index} />)}</div>
