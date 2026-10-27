@@ -245,6 +245,32 @@ describe('navigation and featured work', () => {
     }
   });
 
+  it('presents the integrated approach as an ordered sequence', () => {
+    renderAt(<HomePage />);
+    const section = screen.getByRole('region', { name: 'Integrated Approach' });
+    const steps = within(section).getByRole('list', { name: 'Our integrated approach' });
+    expect(steps.tagName).toBe('OL');
+    const items = within(steps).getAllByRole('listitem');
+    expect(items).toHaveLength(3);
+    expect(items.map((item) => within(item).getByRole('heading').textContent)).toEqual(['Analyze', 'Strategize', 'Execute']);
+    expect(within(items[0]).getByText('Deep dive into your business goals and challenges.')).toBeInTheDocument();
+    expect(within(items[1]).getByText('Develop integrated solutions across all departments.')).toBeInTheDocument();
+    expect(within(items[2]).getByText('Implement and optimize for measurable results.')).toBeInTheDocument();
+  });
+
+  it('retains the about story and all five core values', () => {
+    renderAt(<HomePage />);
+    const section = screen.getByRole('region', { name: 'About KWH Holdings' });
+    expect(within(section).getByRole('heading', { name: 'Our Mission' })).toBeInTheDocument();
+    expect(within(section).getByRole('heading', { name: 'Why We Started' })).toBeInTheDocument();
+    const values = within(section).getByRole('complementary', { name: 'Core Values' });
+    for (const value of ['Integrity', 'Innovation', 'Client Needs Prioritized', 'Collaboration', 'Excellence']) {
+      expect(within(values).getByText(value)).toBeInTheDocument();
+    }
+    expect(values.querySelectorAll('dt')).toHaveLength(5);
+    expect(values.querySelectorAll('dd')).toHaveLength(5);
+  });
+
   it('uses the supplied strategy icon for the marketing department', () => {
     renderAt(<HomePage />);
     const card = screen.getByRole('heading', { name: 'Marketing Strategy' }).closest('article');

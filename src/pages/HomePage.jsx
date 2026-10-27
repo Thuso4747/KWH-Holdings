@@ -165,34 +165,40 @@ export default function HomePage() {
             <p>Comprehensive solutions across three core areas of expertise, designed to accelerate your business growth and digital transformation.</p>
           </div>
           <div className="department-grid">{departments.map((department, index) => <DepartmentCard key={department.slug} department={department} index={index} />)}</div>
-          <div className="approach-panel" id="approach">
+          <section className="approach-panel" id="approach" aria-labelledby="approach-title">
             <div className="approach-panel__intro">
               <p className="eyebrow eyebrow--light">BETTER TOGETHER</p>
-              <h2>Integrated Approach</h2>
+              <h2 id="approach-title">Integrated Approach</h2>
               <p>Unlike traditional consulting firms, we provide holistic solutions that seamlessly integrate marketing, strategy and technology to deliver exceptional results.</p>
             </div>
-            <div className="approach-steps">
-              <div><span>1</span><h3>Analyze</h3><p>Deep dive into your business goals and challenges.</p></div>
-              <div><span>2</span><h3>Strategize</h3><p>Develop integrated solutions across all departments.</p></div>
-              <div><span>3</span><h3>Execute</h3><p>Implement and optimize for measurable results.</p></div>
-            </div>
-          </div>
+            <ol className="approach-steps" role="list" aria-label="Our integrated approach">
+              <li><span className="approach-steps__number" aria-hidden="true">01</span><div><h3>Analyze</h3><p>Deep dive into your business goals and challenges.</p></div></li>
+              <li><span className="approach-steps__number" aria-hidden="true">02</span><div><h3>Strategize</h3><p>Develop integrated solutions across all departments.</p></div></li>
+              <li><span className="approach-steps__number" aria-hidden="true">03</span><div><h3>Execute</h3><p>Implement and optimize for measurable results.</p></div></li>
+            </ol>
+          </section>
         </div>
       </section>
 
-      <section className="about-section section" id="about">
+      <section className="about-section section" id="about" aria-labelledby="about-title">
         <div className="container about-grid">
           <div className="about-copy">
             <p className="eyebrow">THE PEOPLE BEHIND THE WORK</p>
-            <h2>About KWH Holdings</h2>
-            <p>Founded by a team of professionals from marketing, business strategy and tech development, KWH Holdings was created to bridge the gap between vision and execution for modern companies.</p>
-            <h3>Our Mission</h3>
-            <p>To empower businesses with innovative, sustainable and strategic solutions across marketing, business development and software, helping them scale and thrive in a rapidly evolving digital economy.</p>
-            <h3>Why We Started</h3>
-            <p>We identified a recurring challenge: companies often had innovative ideas but lacked integrated support across strategy, marketing and software. KWH was formed to deliver holistic consulting under one roof.</p>
+            <h2 id="about-title">About KWH Holdings</h2>
+            <p className="about-copy__intro">Founded by a team of professionals from marketing, business strategy and tech development, KWH Holdings was created to bridge the gap between vision and execution for modern companies.</p>
+            <div className="about-copy__details">
+              <div>
+                <h3>Our Mission</h3>
+                <p>To empower businesses with innovative, sustainable and strategic solutions across marketing, business development and software, helping them scale and thrive in a rapidly evolving digital economy.</p>
+              </div>
+              <div>
+                <h3>Why We Started</h3>
+                <p>We identified a recurring challenge: companies often had innovative ideas but lacked integrated support across strategy, marketing and software. KWH was formed to deliver holistic consulting under one roof.</p>
+              </div>
+            </div>
           </div>
-          <div className="values-card">
-            <div className="values-card__heading"><div><p className="eyebrow eyebrow--light">WHAT GUIDES US</p><h3>Core Values</h3></div><span>✳</span></div>
+          <aside className="values-card" aria-labelledby="values-title">
+            <div className="values-card__heading"><div><p className="eyebrow eyebrow--light">WHAT GUIDES US</p><h3 id="values-title">Core Values</h3></div><span aria-hidden="true">✳</span></div>
             <dl>
               <div><dt>Integrity</dt><dd>Transparency, honesty and ethical practices.</dd></div>
               <div><dt>Innovation</dt><dd>Creativity and technology to solve challenges.</dd></div>
@@ -200,7 +206,7 @@ export default function HomePage() {
               <div><dt>Collaboration</dt><dd>Strong partnerships based on trust.</dd></div>
               <div><dt>Excellence</dt><dd>Measurable results with professionalism.</dd></div>
             </dl>
-          </div>
+          </aside>
         </div>
       </section>
       <FeaturedWork />
