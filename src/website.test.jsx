@@ -25,6 +25,22 @@ describe('navigation and featured work', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
   });
 
+  it('uses the supplied animated icon for both menu controls', () => {
+    renderAt(<Header />, '/services/marketing');
+    const buttons = [
+      screen.getByRole('button', { name: 'Show navigation' }),
+      screen.getByRole('button', { name: 'Open navigation menu' }),
+    ];
+    for (const button of buttons) {
+      const icon = button.querySelector('svg.menu-icon');
+      expect(icon).toHaveAttribute('aria-hidden', 'true');
+      expect([...icon.querySelectorAll('g > path')].map((path) => path.getAttribute('d'))).toEqual([
+        'M19 5h-14', 'M19 12h-9', 'M19 19h-14', 'M7 9l-3 3l3 3',
+      ]);
+      expect(icon.querySelectorAll('animate')).toHaveLength(4);
+    }
+  });
+
   it('reveals the service navigation near the top and hides it after the pointer leaves', async () => {
     renderAt(<Header />, '/services/marketing');
     const header = screen.getByRole('banner');
@@ -95,12 +111,16 @@ describe('navigation and featured work', () => {
       renderAt(<Header />, '/services/software');
       const header = screen.getByRole('banner');
       const trigger = screen.getByRole('button', { name: 'Show navigation' });
+      const firstIcon = trigger.querySelector('.menu-icon');
       await user.click(trigger);
       expect(header).toHaveClass('is-revealed');
+      const hiddenIcon = trigger.querySelector('.menu-icon');
+      expect(hiddenIcon).not.toBe(firstIcon);
       const close = screen.getByRole('button', { name: 'Close navigation menu' });
       expect(close).toHaveAttribute('aria-expanded', 'true');
       await user.click(close);
       expect(header).not.toHaveClass('is-revealed');
+      expect(trigger.querySelector('.menu-icon')).not.toBe(hiddenIcon);
       await waitFor(() => expect(trigger).toHaveFocus());
     } finally {
       Object.defineProperty(window, 'innerWidth', widthDescriptor);

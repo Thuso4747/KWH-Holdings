@@ -1,7 +1,8 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import Logo from './Logo';
+import { MenuIcon } from './MenuIcon';
 import { useServiceHeader } from './useServiceHeader';
 
 const items = [
@@ -67,7 +68,7 @@ export default function Header() {
           tabIndex={serviceHeader.isVisible ? -1 : 0}
           onClick={openServiceNavigation}
         >
-          <Menu size={22} aria-hidden="true" />
+          <MenuIcon key={serviceHeader.isVisible ? 'hidden' : 'shown'} aria-hidden="true" />
         </button>
       )}
       <header
@@ -94,7 +95,7 @@ export default function Header() {
             aria-controls="primary-navigation"
             onClick={handleMenuToggle}
           >
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+            {menuOpen ? <X size={24} aria-hidden="true" /> : <MenuIcon aria-hidden="true" />}
           </button>
           <nav id="primary-navigation" className={`primary-nav ${menuOpen ? 'is-open' : ''}`} aria-label="Primary navigation">
             {items.map((item) => (
