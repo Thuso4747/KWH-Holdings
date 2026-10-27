@@ -165,10 +165,12 @@ export default function HomePage() {
             <p>Comprehensive solutions across three core areas of expertise, designed to accelerate your business growth and digital transformation.</p>
           </div>
           <div className="department-grid">{departments.map((department, index) => <DepartmentCard key={department.slug} department={department} index={index} />)}</div>
-          <section className="approach-panel" id="approach" aria-labelledby="approach-title">
-            <div className="approach-panel__intro">
-              <p className="eyebrow eyebrow--light">BETTER TOGETHER</p>
-              <h2 id="approach-title">Integrated Approach</h2>
+          <section className="approach-section" id="approach" aria-labelledby="approach-title">
+            <div className="approach-heading">
+              <div>
+                <p className="eyebrow">BETTER TOGETHER</p>
+                <h2 id="approach-title">Integrated Approach</h2>
+              </div>
               <p>Unlike traditional consulting firms, we provide holistic solutions that seamlessly integrate marketing, strategy and technology to deliver exceptional results.</p>
             </div>
             <ol className="approach-steps" role="list" aria-label="Our integrated approach">
@@ -197,8 +199,8 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          <aside className="values-card" aria-labelledby="values-title">
-            <div className="values-card__heading"><div><p className="eyebrow eyebrow--light">WHAT GUIDES US</p><h3 id="values-title">Core Values</h3></div><span aria-hidden="true">✳</span></div>
+          <aside className="about-values" aria-labelledby="values-title">
+            <div className="about-values__heading"><div><p className="eyebrow">WHAT GUIDES US</p><h3 id="values-title">Core Values</h3></div><span aria-hidden="true">✳</span></div>
             <dl>
               <div><dt>Integrity</dt><dd>Transparency, honesty and ethical practices.</dd></div>
               <div><dt>Innovation</dt><dd>Creativity and technology to solve challenges.</dd></div>

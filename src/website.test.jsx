@@ -248,11 +248,13 @@ describe('navigation and featured work', () => {
   it('presents the integrated approach as an ordered sequence', () => {
     renderAt(<HomePage />);
     const section = screen.getByRole('region', { name: 'Integrated Approach' });
+    expect(within(section).getByText('Unlike traditional consulting firms, we provide holistic solutions that seamlessly integrate marketing, strategy and technology to deliver exceptional results.')).toBeInTheDocument();
     const steps = within(section).getByRole('list', { name: 'Our integrated approach' });
     expect(steps.tagName).toBe('OL');
     const items = within(steps).getAllByRole('listitem');
     expect(items).toHaveLength(3);
     expect(items.map((item) => within(item).getByRole('heading').textContent)).toEqual(['Analyze', 'Strategize', 'Execute']);
+    expect(items.map((item) => item.querySelector('[aria-hidden="true"]').textContent)).toEqual(['01', '02', '03']);
     expect(within(items[0]).getByText('Deep dive into your business goals and challenges.')).toBeInTheDocument();
     expect(within(items[1]).getByText('Develop integrated solutions across all departments.')).toBeInTheDocument();
     expect(within(items[2]).getByText('Implement and optimize for measurable results.')).toBeInTheDocument();
