@@ -34,6 +34,16 @@ describe('navigation and featured work', () => {
     expect(icon.querySelector('path')).toHaveAttribute('fill', 'currentColor');
   });
 
+  it('uses the supplied presentation icon for the business department', () => {
+    renderAt(<HomePage />);
+    const card = screen.getByRole('heading', { name: 'Business Consulting' }).closest('article');
+    const icon = card.querySelector('.department-card__topline svg');
+    expect(icon).toHaveAttribute('viewBox', '0 0 24 24');
+    expect(icon).toHaveAttribute('aria-hidden', 'true');
+    expect(icon.querySelector('g')).toHaveAttribute('stroke', 'currentColor');
+    expect(icon.querySelectorAll('path')[1]).toHaveAttribute('d', 'm8 12l3-3l2 2l3-3');
+  });
+
   it('filters work and opens an accessible project dialog', async () => {
     const user = userEvent.setup();
     renderAt(<HomePage />);
