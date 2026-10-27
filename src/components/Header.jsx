@@ -119,7 +119,7 @@ export default function Header() {
       {isServicePage && (
         <button
           ref={serviceHeader.triggerRef}
-          className={`service-nav-trigger ${serviceHeader.isVisible ? 'is-hidden' : ''}`}
+          className={`service-nav-trigger ${serviceHeader.overLightContent ? 'is-over-light' : ''} ${serviceHeader.isVisible ? 'is-hidden' : ''}`}
           type="button"
           aria-label="Show navigation"
           aria-controls="site-header"

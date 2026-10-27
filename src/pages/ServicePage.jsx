@@ -1,25 +1,27 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowUpRight, Minus, Plus } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Minus } from 'lucide-react';
 import PageTitle from '../components/PageTitle';
 
 function OfferingCard({ offering, service, index }) {
   const [expanded, setExpanded] = useState(false);
   const detailsId = `${service.slug}-offering-${index}`;
   return (
-    <article className={`offering-card ${expanded ? 'is-expanded' : ''}`}>
-      <div className="offering-card__number">0{index + 1} <span>/ {service.shortLabel.toUpperCase()}</span></div>
+    <article className="offering-card">
+      <span className="offering-card__number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
       <h3>{offering.title}</h3>
-      <p>{offering.description}</p>
-      <ul className="tag-list" aria-label="Areas of expertise">{offering.tags.map((tag) => <li key={tag}>{tag}</li>)}</ul>
-      <div className="offering-card__detail" id={detailsId} hidden={!expanded}>
-        <p>{offering.detail}</p>
-        <Link to={`/consultation?service=${service.slug}&focus=${encodeURIComponent(offering.title)}`}>Discuss this service <ArrowUpRight size={15} /></Link>
+      <div className="offering-card__body">
+        <p>{offering.description}</p>
+        <ul className="tag-list" aria-label="Areas of expertise">{offering.tags.map((tag) => <li key={tag}>{tag}</li>)}</ul>
+        <button className="offering-card__toggle" type="button" aria-expanded={expanded} aria-controls={detailsId} onClick={() => setExpanded(!expanded)}>
+          <span>{expanded ? 'Show Less' : 'Learn More'}</span>
+          {expanded ? <Minus size={19} aria-hidden="true" /> : <ArrowRight size={19} aria-hidden="true" />}
+        </button>
+        <div className="offering-card__detail" id={detailsId} hidden={!expanded}>
+          <p>{offering.detail}</p>
+          <Link to={`/consultation?service=${service.slug}&focus=${encodeURIComponent(offering.title)}`}>Discuss this service <ArrowUpRight size={16} aria-hidden="true" /></Link>
+        </div>
       </div>
-      <button className="offering-card__toggle" type="button" aria-expanded={expanded} aria-controls={detailsId} onClick={() => setExpanded(!expanded)}>
-        <span>{expanded ? 'Show Less' : 'Learn More'}</span>
-        {expanded ? <Minus size={19} aria-hidden="true" /> : <ArrowRight size={19} aria-hidden="true" />}
-      </button>
     </article>
   );
 }
@@ -27,7 +29,6 @@ function OfferingCard({ offering, service, index }) {
 function ServiceTabs({ service }) {
   const [active, setActive] = useState(0);
   const tabsRef = useRef([]);
-  const tab = service.tabs[active];
 
   function handleKeys(event, index) {
     let next;
@@ -62,22 +63,28 @@ function ServiceTabs({ service }) {
             >{item.label}</button>
           ))}
         </div>
-        <div className="service-tab-panel" role="tabpanel" id={`panel-${service.slug}-${active}`} aria-labelledby={`tab-${service.slug}-${active}`} tabIndex="0">
-          <div className="section-heading section-heading--center">
-            <p className="eyebrow">THE KWH DIFFERENCE</p>
-            <h2>{tab.heading}</h2>
-            <p>{tab.description}</p>
+        {service.tabs.map((tab, tabIndex) => (
+          <div className="service-tab-panel" role="tabpanel" id={`panel-${service.slug}-${tabIndex}`} aria-labelledby={`tab-${service.slug}-${tabIndex}`} tabIndex="0" hidden={tabIndex !== active} key={tab.label}>
+            <div className="section-heading service-panel-heading">
+              <div>
+                <p className="eyebrow">THE KWH DIFFERENCE</p>
+                <h2>{tab.heading}</h2>
+              </div>
+              <p>{tab.description}</p>
+            </div>
+            <div className="benefits-grid">
+              {tab.cards.map((card, index) => (
+                <article className="benefit-card" key={card.title}>
+                  <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                  <div>
+                    <h3 aria-label={card.title}>{card.title.replace(/^\d{2}\.\s*/, '')}</h3>
+                    <p>{card.description}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
-          <div className="benefits-grid">
-            {tab.cards.map((card, index) => (
-              <article className="benefit-card" key={card.title}>
-                <span>0{index + 1}</span>
-                <h3>{card.title}</h3>
-                <p>{card.description}</p>
-              </article>
-            ))}
-          </div>
-        </div>
+        ))}
       </div>
     </section>
   );
@@ -99,11 +106,13 @@ export default function ServicePage({ service }) {
           </div>
         </div>
       </section>
-      <section className="service-offerings section" id="service-offerings">
+      <section className="service-offerings section" id="service-offerings" aria-labelledby="service-offerings-title">
         <div className="container">
-          <div className="section-heading section-heading--center">
-            <p className="eyebrow">OUR EXPERTISE</p>
-            <h2>Our <span>{service.shortLabel}</span> Services</h2>
+          <div className="section-heading service-offerings__heading">
+            <div>
+              <p className="eyebrow">OUR EXPERTISE</p>
+              <h2 id="service-offerings-title">Our <span>{service.shortLabel}</span> Services</h2>
+            </div>
             <p>{service.intro}</p>
           </div>
           <div className="offerings-grid">

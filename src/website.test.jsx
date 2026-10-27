@@ -51,41 +51,42 @@ describe('navigation and featured work', () => {
   it('changes service navigation contrast over light content and dark areas', () => {
     renderAt(<><Header /><main><section className="service-hero" /><div className="benefit-card" /></main><footer className="site-footer" /></>, '/services/business');
     const header = screen.getByRole('banner');
+    const trigger = screen.getByRole('button', { name: 'Show navigation' });
     const hero = document.querySelector('.service-hero');
     const footer = document.querySelector('.site-footer');
     const heroRect = vi.spyOn(hero, 'getBoundingClientRect');
     const footerRect = vi.spyOn(footer, 'getBoundingClientRect').mockReturnValue({ top: 1000, bottom: 1200 });
-    const originalElementsFromPoint = Object.getOwnPropertyDescriptor(document, 'elementsFromPoint');
-    Object.defineProperty(document, 'elementsFromPoint', { configurable: true, value: vi.fn(() => []) });
-    try {
-      heroRect.mockReturnValue({ top: 0, bottom: 600, height: 600 });
-      fireEvent.scroll(window);
-      expect(header).not.toHaveClass('is-over-light');
+    hero.style.setProperty('--service-fade-depth', '260px');
+    heroRect.mockReturnValue({ top: 0, bottom: 600, height: 600 });
+    fireEvent.scroll(window);
+    expect(header).not.toHaveClass('is-over-light');
 
-      // A taller hero (for example at enlarged text sizes) still switches in its fixed-depth fade.
-      heroRect.mockReturnValue({ top: -1050, bottom: 180, height: 1230 });
-      fireEvent.scroll(window);
-      expect(header).not.toHaveClass('is-over-light');
-      heroRect.mockReturnValue({ top: -1140, bottom: 90, height: 1230 });
-      fireEvent.scroll(window);
-      expect(header).toHaveClass('is-over-light');
+    // A taller hero still switches in its fixed-depth fade rather than at a percentage of its height.
+    heroRect.mockReturnValue({ top: -1050, bottom: 180, height: 1230 });
+    fireEvent.scroll(window);
+    expect(header).not.toHaveClass('is-over-light');
+    heroRect.mockReturnValue({ top: -1140, bottom: 90, height: 1230 });
+    fireEvent.scroll(window);
+    expect(header).toHaveClass('is-over-light');
+    expect(trigger).toHaveClass('is-over-light');
 
-      heroRect.mockReturnValue({ top: -500, bottom: 100, height: 600 });
-      fireEvent.resize(window);
-      expect(header).toHaveClass('is-over-light');
+    // The mobile fade has a different depth; the transparent header reads the CSS value on resize.
+    hero.style.setProperty('--service-fade-depth', '220px');
+    heroRect.mockReturnValue({ top: -1070, bottom: 160, height: 1230 });
+    fireEvent.resize(window);
+    expect(header).not.toHaveClass('is-over-light');
+    heroRect.mockReturnValue({ top: -1090, bottom: 140, height: 1230 });
+    fireEvent.scroll(window);
+    expect(header).toHaveClass('is-over-light');
 
-      document.elementsFromPoint.mockReturnValue([document.querySelector('.benefit-card')]);
-      fireEvent.scroll(window);
-      expect(header).not.toHaveClass('is-over-light');
-
-      document.elementsFromPoint.mockReturnValue([]);
-      footerRect.mockReturnValue({ top: 0, bottom: 300 });
-      fireEvent.scroll(window);
-      expect(header).not.toHaveClass('is-over-light');
-    } finally {
-      if (originalElementsFromPoint) Object.defineProperty(document, 'elementsFromPoint', originalElementsFromPoint);
-      else delete document.elementsFromPoint;
-    }
+    // The redesigned benefits are light, while the footer remains dark.
+    heroRect.mockReturnValue({ top: -1230, bottom: 0, height: 1230 });
+    fireEvent.scroll(window);
+    expect(header).toHaveClass('is-over-light');
+    footerRect.mockReturnValue({ top: 0, bottom: 300 });
+    fireEvent.scroll(window);
+    expect(header).not.toHaveClass('is-over-light');
+    expect(trigger).not.toHaveClass('is-over-light');
   });
 
   it('reveals the service navigation near the top and hides it after the pointer leaves', async () => {
@@ -355,6 +356,23 @@ describe('navigation and featured work', () => {
 });
 
 describe('service pages', () => {
+  it.each(Object.values(servicePages))('retains the full $label offering information', (service) => {
+    renderAt(<ServicePage service={service} />, `/services/${service.slug}`);
+    const section = screen.getByRole('region', { name: `Our ${service.shortLabel} Services` });
+    expect(within(section).getByText(service.intro)).toBeVisible();
+    for (const offering of service.offerings) {
+      const row = within(section).getByRole('heading', { name: offering.title }).closest('article');
+      expect(within(row).getByText(offering.description)).toBeVisible();
+      const tags = within(row).getByRole('list', { name: 'Areas of expertise' });
+      expect(within(tags).getAllByRole('listitem').map((item) => item.textContent)).toEqual(offering.tags);
+      const toggle = within(row).getByRole('button', { name: 'Learn More' });
+      const detail = document.getElementById(toggle.getAttribute('aria-controls'));
+      expect(toggle.compareDocumentPosition(detail) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(detail).toHaveTextContent(offering.detail);
+      expect(detail).toHaveAttribute('hidden');
+    }
+  });
+
   it('expands service information and supports keyboard-accessible tabs', async () => {
     const user = userEvent.setup();
     renderAt(<ServicePage service={servicePages.business} />);
@@ -375,12 +393,21 @@ describe('service pages', () => {
     expect(toggle).toHaveAccessibleName('Learn More');
     expect(detail).toHaveAttribute('hidden');
 
+    const tabs = screen.getAllByRole('tab');
+    for (const tab of tabs) {
+      const panel = document.getElementById(tab.getAttribute('aria-controls'));
+      expect(panel).toHaveAttribute('role', 'tabpanel');
+      expect(panel).toHaveAttribute('aria-labelledby', tab.id);
+      expect(panel.hasAttribute('hidden')).toBe(tab.getAttribute('aria-selected') === 'false');
+    }
     const methodology = screen.getByRole('tab', { name: 'Methodology' });
     await user.click(methodology);
     expect(screen.getByRole('tabpanel')).toHaveTextContent('A thoughtful approach, from start to finish');
+    expect(screen.getByRole('heading', { name: '01. Discover' })).toBeVisible();
     await user.keyboard('{ArrowRight}');
     expect(screen.getByRole('tab', { name: 'Our Team' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByRole('tab', { name: 'Our Team' })).toHaveFocus();
+    expect(document.getElementById(methodology.getAttribute('aria-controls'))).toHaveAttribute('hidden');
   });
 });
 

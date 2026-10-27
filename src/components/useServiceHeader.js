@@ -3,8 +3,9 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 const REVEAL_ZONE = 72;
 const HIDE_DELAY = 240;
 const SCROLL_THRESHOLD = 5;
-// The hero fades over a fixed distance, even when its content grows with text size.
-const HERO_FADE_SWITCH_DISTANCE = 75;
+// Match the fixed-depth CSS fade, even when hero content grows with text size.
+const DEFAULT_HERO_FADE_DEPTH = 260;
+const HERO_FADE_INK_SWITCH = 0.5;
 
 /** Keep the service hero unobstructed while making navigation easy to reveal. */
 export function useServiceHeader(enabled, pathname, menuOpen) {
@@ -70,11 +71,10 @@ export function useServiceHeader(enabled, pathname, menuOpen) {
       const navY = 42;
       const heroRect = hero.getBoundingClientRect();
       const footerRect = document.querySelector('.site-footer')?.getBoundingClientRect();
-      const overHeroImage = heroRect.top <= navY && heroRect.bottom - HERO_FADE_SWITCH_DISTANCE > navY;
+      const fadeDepth = Number.parseFloat(window.getComputedStyle(hero).getPropertyValue('--service-fade-depth')) || DEFAULT_HERO_FADE_DEPTH;
+      const overHeroImage = heroRect.top <= navY && heroRect.bottom - fadeDepth * HERO_FADE_INK_SWITCH > navY;
       const overFooter = footerRect && footerRect.top <= navY && footerRect.bottom > navY;
-      const overDarkCard = document.elementsFromPoint?.(window.innerWidth / 2, navY)
-        .some((element) => element.closest('.benefit-card'));
-      setOverLightContent(!overHeroImage && !overFooter && !overDarkCard);
+      setOverLightContent(!overHeroImage && !overFooter);
     };
     updateContrast();
 
