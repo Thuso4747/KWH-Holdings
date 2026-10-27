@@ -116,9 +116,7 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
 .site-header--service .primary-nav { margin-right: 0; }
 .site-header--service .primary-nav > a:not(.mobile-nav-cta) {
   color: #fff;
-  font-size: .9rem;
-  font-weight: 700;
-  /* Switch ink immediately with its contrasting shadow as the image fades. */
+  /* Use the shared navigation typography and switch ink with the fading image. */
   transition: none;
   text-shadow: 0 1px 2px #000, 0 0 7px rgba(0, 0, 0, .8);
 }
@@ -185,11 +183,9 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
 .department-card ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; list-style: none; padding: 0; margin: 0; }
 .department-card li { position: relative; padding-left: 14px; color: #506062; font-size: .78rem; line-height: 1.5; overflow-wrap: anywhere; }
 .department-card li::before { position: absolute; content: ''; left: 0; top: .56em; width: 5px; height: 5px; border-radius: 50%; background: #8aa9a6; }
-.department-card__link { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; margin-top: 15px; color: #2f5758; font-size: .95rem; font-weight: 700; line-height: 1.4; transition: color .2s ease; }
-.department-card__link span, .offering-card__toggle > span { text-decoration: underline; text-decoration-color: #739192; text-decoration-thickness: 2px; text-underline-offset: .35em; transition: text-decoration-color .2s ease; }
+.department-card__link { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; margin-top: 15px; color: #2f5758; font-size: .95rem; font-weight: 400; line-height: 1.4; transition: color .2s ease; }
 .department-card__link svg { flex: none; transition: transform .2s ease; }
 .department-card__link:hover, .department-card__link:focus-visible { color: #1e3e3f; }
-.department-card__link:hover span, .department-card__link:focus-visible span { text-decoration-color: currentColor; }
 .department-card__link:hover svg, .department-card__link:focus-visible svg { transform: translate(4px, -4px); }
 .department-card__link:focus-visible, .offering-card__toggle:focus-visible { outline: 2px solid #2f5758; outline-offset: 3px; }
 .department-card__image { grid-area: image; position: relative; width: 100%; aspect-ratio: 16 / 10; overflow: hidden; background: #dfe6e5; }
@@ -305,10 +301,9 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
 .tag-list { display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 0; margin: 0 0 12px; list-style: none; }
 .tag-list li { position: relative; padding-left: 14px; color: #4d6263; font-size: .82rem; line-height: 1.5; overflow-wrap: anywhere; }
 .tag-list li::before { position: absolute; content: ''; left: 0; top: .58em; width: 5px; height: 5px; border-radius: 50%; background: #8aa9a6; }
-.offering-card__toggle { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0; border: 0; background: transparent; color: #2f5758; font-size: .95rem; font-weight: 700; line-height: 1.4; text-align: left; transition: color .2s ease; }
+.offering-card__toggle { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0; border: 0; background: transparent; color: #2f5758; font-size: .95rem; font-weight: 400; line-height: 1.4; text-align: left; transition: color .2s ease; }
 .offering-card__toggle svg { flex: none; transition: transform .2s ease; }
 .offering-card__toggle:hover, .offering-card__toggle:focus-visible { color: #1e3e3f; }
-.offering-card__toggle:hover > span, .offering-card__toggle:focus-visible > span { text-decoration-color: currentColor; }
 .offering-card__toggle[aria-expanded='false']:hover svg, .offering-card__toggle[aria-expanded='false']:focus-visible svg { transform: translateX(4px); }
 .offering-card__detail { max-width: 680px; margin-top: 14px; padding-top: 20px; border-top: 1px solid #d8e2e0; }
 .offering-card__detail p { margin: 0 0 10px; color: #4f5d5f; font-size: .9rem; line-height: 1.7; overflow-wrap: anywhere; }
@@ -481,7 +476,6 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
     padding: 13px 16px;
     border: 0;
     color: #fff;
-    font-size: 1.05rem;
     text-shadow: 0 1px 2px #000, 0 0 7px rgba(0, 0, 0, .8);
   }
   .site-header--service .primary-nav > a:not(.mobile-nav-cta)::after {
