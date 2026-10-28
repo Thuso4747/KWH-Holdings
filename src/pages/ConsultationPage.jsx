@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Check, Clipboard, Mail, Phone, Send } from 'lucide-react';
+import { DiagonalArrowIcon } from '../components/DiagonalArrowIcon';
 import PageTitle from '../components/PageTitle';
 
 const contactEmail = 'haroldlowa25@gmail.com';
@@ -128,7 +129,7 @@ function ConsultationForm() {
             </div>
             {copyStatus && <p className="copy-status" role="status">{copyStatus}</p>}
             <details className="request-details"><summary>View request details</summary><pre>{summary}</pre></details>
-            <button className="text-button text-button--light" type="button" onClick={() => { setReady(false); setCopyStatus(''); }}>← Edit my answers</button>
+            <button className="text-button text-button--light" type="button" onClick={() => { setReady(false); setCopyStatus(''); }}><ArrowLeft size={16} aria-hidden="true" /> Edit my answers</button>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
@@ -212,16 +213,12 @@ export default function ConsultationPage() {
         <div className="container">
           <div className="section-heading section-heading--center"><p className="eyebrow">ONE TEAM, MANY PERSPECTIVES</p><h2 id="consultation-departments-title">Our Departments</h2></div>
           <div className="consultation-department-grid">
-            <Link to="/services/marketing"><h3>Marketing &amp; Digital</h3><p>Social Media, Content Strategy, Email Marketing</p><ArrowUpRightIcon /></Link>
-            <Link to="/services/business"><h3>Business Strategy</h3><p>Growth Planning, Market Analysis, Process Optimization</p><ArrowUpRightIcon /></Link>
-            <Link to="/services/software"><h3>Technology Solutions</h3><p>Web Development, Mobile Apps, System Integration</p><ArrowUpRightIcon /></Link>
+            <Link to="/services/marketing"><h3>Marketing &amp; Digital</h3><p>Social Media, Content Strategy, Email Marketing</p><DiagonalArrowIcon className="department-arrow" size={20} /></Link>
+            <Link to="/services/business"><h3>Business Strategy</h3><p>Growth Planning, Market Analysis, Process Optimization</p><DiagonalArrowIcon className="department-arrow" size={20} /></Link>
+            <Link to="/services/software"><h3>Technology Solutions</h3><p>Web Development, Mobile Apps, System Integration</p><DiagonalArrowIcon className="department-arrow" size={20} /></Link>
           </div>
         </div>
       </section>
     </main>
   );
-}
-
-function ArrowUpRightIcon() {
-  return <span className="department-arrow" aria-hidden="true">↗</span>;
 }

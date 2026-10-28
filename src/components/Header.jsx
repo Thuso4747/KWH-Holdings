@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { X } from 'lucide-react';
 import Logo from './Logo';
+import { DiagonalArrowIcon } from './DiagonalArrowIcon';
 import { MenuIcon } from './MenuIcon';
 import { useServiceHeader } from './useServiceHeader';
 
@@ -172,8 +173,8 @@ export default function Header() {
     }
   }
 
-  function renderNavigationLinks() {
-    return items.map((item) => (
+  function renderNavigationLinks(menuDetails = false) {
+    return items.map((item, index) => (
       <Link
         key={item.label}
         to={item.to}
@@ -181,7 +182,9 @@ export default function Header() {
         aria-current={isActive(item.label) ? 'page' : undefined}
         onClick={() => setMenuOpen(false)}
       >
-        {item.label}
+        {menuDetails && <span className="navigation-menu__index" aria-hidden="true">0{index + 1}</span>}
+        <span className={menuDetails ? 'navigation-menu__label' : undefined}>{item.label}</span>
+        {menuDetails && <DiagonalArrowIcon className="navigation-menu__arrow" size={19} />}
       </Link>
     ));
   }
@@ -203,6 +206,7 @@ export default function Header() {
         </button>
       )}
       {isServiceMenuOpen && <div className="service-menu-backdrop" aria-hidden="true" onClick={closeServiceNavigation} />}
+      {!isServicePage && menuOpen && <div className="standard-menu-backdrop" aria-hidden="true" />}
       <header
         id="site-header"
         ref={serviceHeader.headerRef}
@@ -238,8 +242,11 @@ export default function Header() {
             aria-label={isServicePage ? 'Primary navigation' : 'Navigation menu'}
             hidden={!isServicePage && !menuOpen}
           >
-            {renderNavigationLinks()}
-            <Link className="mobile-nav-cta" to="/consultation" onClick={() => setMenuOpen(false)}>Start a project <span aria-hidden="true">↗</span></Link>
+            <div className="navigation-menu__heading" aria-hidden="true"><span>Explore</span><span>KWH Holdings</span></div>
+            {renderNavigationLinks(true)}
+            <Link className="mobile-nav-cta" to="/consultation" onClick={() => setMenuOpen(false)}>
+              <span>Start a project</span><DiagonalArrowIcon size={19} />
+            </Link>
           </nav>
         </div>
       </header>

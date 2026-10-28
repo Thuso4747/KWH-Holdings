@@ -114,17 +114,43 @@ describe('navigation and home sections', () => {
     await user.click(toggle);
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
     expect(menu).toBeVisible();
+    expect(document.querySelector('.standard-menu-backdrop')).toHaveAttribute('aria-hidden', 'true');
     expect(within(menu).getByRole('link', { name: 'Services' })).toHaveAttribute('href', '/#services');
     expect(within(menu).getByRole('link', { name: 'Start a project' })).toHaveAttribute('href', '/consultation');
     await user.keyboard('{Escape}');
     expect(toggle).toHaveFocus();
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
     expect(menu).not.toBeVisible();
+    expect(document.querySelector('.standard-menu-backdrop')).not.toBeInTheDocument();
 
     await user.click(toggle);
     fireEvent.pointerDown(document.body);
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
     expect(menu).not.toBeVisible();
+  });
+
+  it('uses the supplied decorative arrow in the mobile navigation without changing link names', async () => {
+    const user = userEvent.setup();
+    renderAt(<Header />);
+    await user.click(screen.getByRole('button', { name: 'Open navigation menu' }));
+    const menu = screen.getByRole('navigation', { name: 'Navigation menu' });
+    expect(menu.querySelector('.navigation-menu__heading')).toHaveAttribute('aria-hidden', 'true');
+
+    const labels = ['Home', 'Services', 'About', 'Contact', 'Start a project'];
+    const links = within(menu).getAllByRole('link');
+    expect(links).toHaveLength(labels.length);
+    links.forEach((link, index) => {
+      expect(link).toHaveAccessibleName(labels[index]);
+      expect(link).not.toHaveTextContent('↗');
+      const icon = link.querySelector('svg');
+      expect(icon).toHaveAttribute('aria-hidden', 'true');
+      expect(icon).toHaveAttribute('focusable', 'false');
+      expect(icon.querySelectorAll('path')[1]).toHaveAttribute('d', 'M18 18L6 6m2 12h10V8');
+      if (index < 4) {
+        expect(link.querySelector('.navigation-menu__index')).toHaveAttribute('aria-hidden', 'true');
+        expect(link.querySelector('.navigation-menu__index')).toHaveTextContent(`0${index + 1}`);
+      }
+    });
   });
 
   it('closes the home mobile menu and moves focus to navigation when the viewport widens', async () => {
@@ -301,6 +327,11 @@ describe('navigation and home sections', () => {
       expect(hiddenIcon).not.toBe(firstIcon);
       const close = screen.getByRole('button', { name: 'Close navigation menu' });
       expect(close).toHaveAttribute('aria-expanded', 'true');
+      const menu = screen.getByRole('navigation', { name: 'Primary navigation' });
+      const services = within(menu).getByRole('link', { name: 'Services' });
+      expect(services).toHaveAttribute('aria-current', 'page');
+      expect(services.querySelector('.navigation-menu__arrow path:last-child')).toHaveAttribute('d', 'M18 18L6 6m2 12h10V8');
+      expect(within(menu).getByRole('link', { name: 'Start a project' }).querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
       await user.click(close);
       expect(header).not.toHaveClass('is-revealed');
       expect(trigger.querySelector('.menu-icon')).not.toBe(hiddenIcon);
@@ -565,7 +596,10 @@ describe('consultation request', () => {
     ]) {
       const link = within(section).getByRole('heading', { name: title }).closest('a');
       expect(link).toHaveAttribute('href', `/services/${slug}`);
-      expect(link.querySelector('.department-arrow')).toHaveAttribute('aria-hidden', 'true');
+      const arrow = link.querySelector('svg.department-arrow');
+      expect(arrow).toHaveAttribute('aria-hidden', 'true');
+      expect(arrow.querySelectorAll('path')[1]).toHaveAttribute('d', 'M18 18L6 6m2 12h10V8');
+      expect(link).not.toHaveTextContent('↗');
     }
     expect(within(section).queryByRole('heading', { name: 'Creative & Design' })).not.toBeInTheDocument();
   });
@@ -597,11 +631,17 @@ describe('consultation request', () => {
 
     expect(screen.getByRole('heading', { name: 'Your request is ready' })).toBeInTheDocument();
     expect(screen.getByText(/isn’t sent until you choose to send it/i)).toBeInTheDocument();
+    const editAnswers = screen.getByRole('button', { name: 'Edit my answers' });
+    expect(editAnswers.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+    expect(editAnswers).not.toHaveTextContent('←');
     const emailLink = screen.getByRole('link', { name: /open email app/i });
     const href = decodeURIComponent(emailLink.getAttribute('href'));
     expect(href).toContain('mailto:haroldlowa25@gmail.com');
     expect(href).toContain('alex@example.com');
     expect(href).toContain('Grow our business & improve operations.');
+    await user.click(editAnswers);
+    expect(screen.getByRole('heading', { name: 'Goals & Challenges' })).toBeInTheDocument();
+    expect(screen.getByLabelText('What are your goals?')).toHaveValue('Grow our business & improve operations.');
   });
 
   it('rejects a name containing only whitespace', async () => {

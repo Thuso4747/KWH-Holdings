@@ -43,6 +43,18 @@ describe('navigation and action typography', () => {
     expect(getComputedStyle(document.querySelector('.menu-toggle')).justifySelf).toBe('end');
   });
 
+  it('centres the logo independently of the menu control on mobile', () => {
+    const mobile = [...stylesheet.sheet.cssRules].find((rule) => rule.conditionText === '(max-width: 760px)');
+    const ruleFor = (selector) => [...mobile.cssRules].find((rule) => rule.selectorText === selector).style;
+    expect(ruleFor('.site-header--standard .header-inner').display).toBe('grid');
+    expect(ruleFor('.site-header--standard .header-inner').gridTemplateColumns).toBe('minmax(0, 1fr) auto minmax(0, 1fr)');
+    expect(ruleFor('.site-header--standard .header-brand').gridColumn).toBe('2');
+    expect(ruleFor('.site-header--standard .header-brand').justifySelf).toBe('center');
+    expect(ruleFor('.site-header--standard .menu-toggle').gridColumn).toBe('3');
+    expect(ruleFor('.site-header--standard .primary-nav--inline').display).toBe('none');
+    expect(ruleFor('.site-header--standard .primary-nav--dropdown').maxHeight).toBe('calc(100dvh - var(--header-min-height) - 12px)');
+  });
+
   it('gives the dashboard a viewport-sized minimum without fixing its height', () => {
     document.body.innerHTML = '<section class="home-hero"><div class="home-hero__inner">Dashboard content</div><a class="home-hero__scroll" href="/#vision">Scroll to explore</a></section>';
     const hero = getComputedStyle(document.querySelector('.home-hero'));
@@ -82,8 +94,8 @@ describe('navigation and action typography', () => {
   it('anchors consultation department arrows to the bottom of their links', () => {
     document.body.innerHTML = `
       <div class="consultation-department-grid">
-        <a href="/services/marketing"><h3>Marketing &amp; Digital</h3><p>Short description</p><span class="department-arrow">↗</span></a>
-        <a href="/services/business"><h3>Business Strategy</h3><p>Longer description that can wrap across lines</p><span class="department-arrow">↗</span></a>
+        <a href="/services/marketing"><h3>Marketing &amp; Digital</h3><p>Short description</p><svg class="department-arrow" aria-hidden="true"></svg></a>
+        <a href="/services/business"><h3>Business Strategy</h3><p>Longer description that can wrap across lines</p><svg class="department-arrow" aria-hidden="true"></svg></a>
       </div>
     `;
     for (const link of document.querySelectorAll('.consultation-department-grid a')) {
