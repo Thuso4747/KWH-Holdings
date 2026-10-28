@@ -89,6 +89,16 @@ describe('navigation and action typography', () => {
     expect(styles).toContain('--header-min-height: 90px');
   });
 
+  it('fades the scroll prompt without hiding a keyboard-focused link', () => {
+    const rules = [...stylesheet.sheet.cssRules];
+    const prompt = rules.find((rule) => rule.selectorText === '.home-hero__scroll').style;
+    const hidden = rules.find((rule) => rule.selectorText === '.home-hero__scroll.is-hidden:not(:focus-visible)').style;
+    expect(prompt.transition).toContain('opacity');
+    expect(hidden.opacity).toBe('0');
+    expect(hidden.visibility).toBe('hidden');
+    expect(hidden.pointerEvents).toBe('none');
+  });
+
   it('balances the home hero and allows its columns to wrap', () => {
     document.body.innerHTML = `
       <section class="home-hero"><div class="home-hero__inner">

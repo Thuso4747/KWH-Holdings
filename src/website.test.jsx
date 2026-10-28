@@ -61,15 +61,60 @@ describe('navigation and home sections', () => {
     expect(hero.nextElementSibling).toBe(vision);
   });
 
-  it('scrolls to the vision section when the scroll link is activated', async () => {
+  it('scrolls to and focuses the vision section when the scroll link is activated', async () => {
     const user = userEvent.setup();
     const scrollIntoView = vi.spyOn(HTMLElement.prototype, 'scrollIntoView');
     renderAt(<><ScrollManager /><HomePage /></>);
     const vision = document.getElementById('vision');
+    const heading = within(vision).getByRole('heading', { name: /from vision\s+to execution/i });
     scrollIntoView.mockClear();
     await user.click(screen.getByRole('link', { name: 'Scroll to explore' }));
+    expect(heading).toHaveFocus();
     await waitFor(() => expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' }));
     expect(scrollIntoView.mock.instances).toContain(vision);
+  });
+
+  it('hides the scroll prompt after leaving the dashboard and restores it on return', () => {
+    let heroBottom = window.innerHeight + 300; // A hero taller than the viewport remains usable.
+    let queuedFrame;
+    let frameId = 0;
+    const originalRect = HTMLElement.prototype.getBoundingClientRect;
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function getRect() {
+      if (this.classList.contains('home-hero')) return { bottom: heroBottom };
+      return originalRect.call(this);
+    });
+    const requestFrame = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      queuedFrame = callback;
+      frameId += 1;
+      return frameId;
+    });
+    const cancelFrame = vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => {});
+    const { unmount } = renderAt(<HomePage />);
+    const prompt = screen.getByRole('link', { name: 'Scroll to explore' });
+    expect(prompt).not.toHaveClass('is-hidden');
+    expect(prompt).not.toHaveAttribute('tabindex');
+
+    heroBottom = window.innerHeight - 30;
+    fireEvent.scroll(window);
+    fireEvent.scroll(window); // Multiple events in a frame are coalesced.
+    expect(requestFrame).toHaveBeenCalledTimes(1);
+    act(() => queuedFrame(0));
+    expect(prompt).toHaveClass('is-hidden');
+    expect(prompt).toHaveAttribute('tabindex', '-1');
+
+    heroBottom = window.innerHeight - 200;
+    fireEvent.scroll(window);
+    act(() => queuedFrame(0));
+    expect(prompt).toHaveClass('is-hidden');
+    heroBottom = window.innerHeight - 10;
+    fireEvent.scroll(window);
+    act(() => queuedFrame(0));
+    expect(prompt).not.toHaveClass('is-hidden');
+    expect(prompt).not.toHaveAttribute('tabindex');
+
+    fireEvent.resize(window);
+    unmount();
+    expect(cancelFrame).toHaveBeenCalledWith(frameId);
   });
 
   it('keeps Home active when the vision section is linked directly', () => {

@@ -185,7 +185,9 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
 .home-hero .eyebrow span { margin-right: 7px; font-size: .9rem; }
 .home-hero .button { max-width: 100%; padding-inline: 18px; white-space: normal; text-align: center; }
 .home-hero .button svg { flex: none; }
-.home-hero__scroll { justify-self: center; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; margin-bottom: clamp(16px, 4vh, 36px); padding: 10px 12px; color: #526f70; font-size: .67rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.home-hero__scroll { justify-self: center; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; margin-bottom: clamp(16px, 4vh, 36px); padding: 10px 12px; color: #526f70; font-size: .67rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; transition: opacity .2s ease, visibility .2s; }
+/* A keyboard-focused link stays visible until focus moves elsewhere. */
+.home-hero__scroll.is-hidden:not(:focus-visible) { opacity: 0; visibility: hidden; pointer-events: none; }
 .home-hero__scroll svg { flex: none; transition: transform .2s ease; }
 .home-hero__scroll:hover svg, .home-hero__scroll:focus-visible svg { transform: translateY(3px); }
 

@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowDown, ArrowRight, ArrowUpRight, Code2 } from 'lucide-react';
 import PageTitle from '../components/PageTitle';
@@ -30,14 +31,14 @@ function DepartmentCard({ department, index }) {
   );
 }
 
-function HomeVisual() {
+function HomeVisual({ headingRef }) {
   return (
     <section className="home-visual" id="vision" aria-labelledby="home-visual-title">
       <img src="/images/city-connections.jpg" alt="" width="1584" height="672" loading="lazy" decoding="async" />
       <div className="container home-visual__inner">
         <div className="home-visual__intro">
           <p className="eyebrow eyebrow--light">BRINGING IT ALL TOGETHER</p>
-          <h2 id="home-visual-title">From vision{' '}<br />to execution.</h2>
+          <h2 id="home-visual-title" ref={headingRef} tabIndex="-1">From vision{' '}<br />to execution.</h2>
         </div>
         <nav className="home-visual__links" aria-label="Explore our departments">
           {departments.map((department, index) => (
@@ -53,10 +54,48 @@ function HomeVisual() {
 }
 
 export default function HomePage() {
+  const [showScrollPrompt, setShowScrollPrompt] = useState(true);
+  const heroRef = useRef(null);
+  const visionHeadingRef = useRef(null);
+
+  useEffect(() => {
+    let frame = null;
+    let lastVisible;
+    const update = () => {
+      frame = null;
+      if (!heroRef.current) return;
+      // Keep the prompt available throughout an oversized hero, then hide it as the next section enters.
+      const visible = heroRef.current.getBoundingClientRect().bottom >= window.innerHeight - 24;
+      if (visible !== lastVisible) {
+        lastVisible = visible;
+        setShowScrollPrompt(visible);
+      }
+    };
+    const scheduleUpdate = () => {
+      if (frame === null) frame = window.requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener('scroll', scheduleUpdate, { passive: true });
+    window.addEventListener('resize', scheduleUpdate);
+    const observer = window.ResizeObserver ? new window.ResizeObserver(scheduleUpdate) : null;
+    observer?.observe(heroRef.current);
+    return () => {
+      window.removeEventListener('scroll', scheduleUpdate);
+      window.removeEventListener('resize', scheduleUpdate);
+      observer?.disconnect();
+      if (frame !== null) window.cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  function focusVisionHeading(event) {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    visionHeadingRef.current?.focus({ preventScroll: true });
+  }
+
   return (
     <main id="main-content">
       <PageTitle title="Strategic solutions for modern businesses" description="KWH Holdings brings marketing, business strategy, and software development together to help modern businesses grow." />
-      <section className="home-hero">
+      <section className="home-hero" ref={heroRef}>
         <div className="container home-hero__inner">
           <div className="home-hero__headline">
             <p className="eyebrow"><span aria-hidden="true">+</span> STRATEGY · CREATIVITY · TECHNOLOGY</p>
@@ -70,10 +109,17 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-        <Link className="home-hero__scroll" to="/#vision">Scroll to explore <ArrowDown size={16} aria-hidden="true" /></Link>
+        <Link
+          className={`home-hero__scroll ${showScrollPrompt ? '' : 'is-hidden'}`}
+          to="/#vision"
+          tabIndex={showScrollPrompt ? undefined : -1}
+          onClick={focusVisionHeading}
+        >
+          Scroll to explore <ArrowDown size={16} aria-hidden="true" />
+        </Link>
       </section>
 
-      <HomeVisual />
+      <HomeVisual headingRef={visionHeadingRef} />
 
       <section className="departments-section section" id="services" aria-labelledby="departments-title">
         <div className="container">
