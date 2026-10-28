@@ -7,6 +7,8 @@ import { StrategyIcon } from '../components/StrategyIcon';
 import { departments } from '../data/services';
 
 const icons = { marketing: StrategyIcon, business: PresentationIcon, software: Code2 };
+// The supplied strategy icon's 16-unit outlines on a 256-unit viewBox equal 1.5 units on a 24-unit viewBox.
+const expertiseIconStrokeWidth = 1.5;
 const heroWords = ['Solutions', 'Systems', 'Innovations', 'Improvements'];
 
 function DepartmentCard({ department, index }) {
@@ -15,7 +17,7 @@ function DepartmentCard({ department, index }) {
     <article className={`department-card department-card--${department.slug}`}>
       <span className="department-card__index" aria-hidden="true">0{index + 1}</span>
       <div className="department-card__identity">
-        <div className="department-card__topline"><span>OUR EXPERTISE</span><Icon size={23} strokeWidth={1.6} aria-hidden="true" /></div>
+        <div className="department-card__topline"><span>OUR EXPERTISE</span><Icon size={23} strokeWidth={expertiseIconStrokeWidth} aria-hidden="true" /></div>
         <h3>{department.cardTitle}</h3>
       </div>
       <div className="department-card__body">
