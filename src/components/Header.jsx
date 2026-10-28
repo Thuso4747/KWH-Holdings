@@ -15,34 +15,39 @@ const items = [
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  // Capture the consultation menu's presentation when it opens; desktop keeps its dropdown.
+  const [consultationMenuOverlay, setConsultationMenuOverlay] = useState(false);
   const menuToggleRef = useRef(null);
-  const homeMenuRef = useRef(null);
-  const homeMenuCloseRef = useRef(null);
-  const homeMenuHadFocus = useRef(false);
+  const mobileMenuRef = useRef(null);
+  const mobileMenuCloseRef = useRef(null);
+  const mobileMenuHadFocus = useRef(false);
   const location = useLocation();
   const isHomePage = location.pathname === '/';
+  const isConsultationPage = /^\/consultation\/?$/.test(location.pathname);
   const isServicePage = /^\/(?:services\/(?:marketing|business|software)|marketing|business|software)\/?$/.test(location.pathname);
   const serviceHeader = useServiceHeader(isServicePage, location.pathname, menuOpen);
+  const usesMobileOverlay = isHomePage || (isConsultationPage && consultationMenuOverlay);
   const isServiceMenuOpen = isServicePage && menuOpen;
-  const isHomeMenuOpen = isHomePage && menuOpen;
+  const isMobileOverlayOpen = usesMobileOverlay && menuOpen;
 
   useLayoutEffect(() => {
-    homeMenuHadFocus.current = false;
+    mobileMenuHadFocus.current = false;
     setMenuOpen(false);
+    setConsultationMenuOverlay(false);
   }, [location.pathname, location.search, location.hash]);
 
-  // The standard dropdown outside the home and service pages is not modal.
+  // Standard dropdowns (including consultation on desktop) are not modal.
   useEffect(() => {
-    if (!menuOpen || isServicePage || isHomePage) return undefined;
+    if (!menuOpen || isServicePage || usesMobileOverlay) return undefined;
     const onPointerDown = (event) => {
       if (!serviceHeader.headerRef.current?.contains(event.target)) {
-        homeMenuHadFocus.current = false;
+        mobileMenuHadFocus.current = false;
         setMenuOpen(false);
       }
     };
     document.addEventListener('pointerdown', onPointerDown);
     return () => document.removeEventListener('pointerdown', onPointerDown);
-  }, [isHomePage, isServicePage, menuOpen, serviceHeader.headerRef]);
+  }, [isServicePage, usesMobileOverlay, menuOpen, serviceHeader.headerRef]);
 
   // The home menu is mobile-only; close it and preserve focus when widening.
   useEffect(() => {
@@ -53,9 +58,9 @@ export default function Header() {
       const header = serviceHeader.headerRef.current;
       // CSS may hide the focused mobile control before this media event fires.
       const focusWasInMenu = document.activeElement === menuToggleRef.current
-        || homeMenuRef.current?.contains(document.activeElement)
-        || (homeMenuHadFocus.current && document.activeElement === document.body);
-      homeMenuHadFocus.current = false;
+        || mobileMenuRef.current?.contains(document.activeElement)
+        || (mobileMenuHadFocus.current && document.activeElement === document.body);
+      mobileMenuHadFocus.current = false;
       setMenuOpen(false);
       if (focusWasInMenu) {
         window.requestAnimationFrame(() => header?.querySelector('.primary-nav--inline a')?.focus({ preventScroll: true }));
@@ -69,17 +74,48 @@ export default function Header() {
     };
   }, [isHomePage, serviceHeader.headerRef]);
 
-  // Both mobile overlays keep the background inert and restore its previous state on close.
+  // Close the consultation menu if its mobile/desktop presentation changes on resize.
+  useEffect(() => {
+    if (!isConsultationPage || !menuOpen) return undefined;
+    const mobile = window.matchMedia?.('(max-width: 760px)');
+    const onChange = (event) => {
+      const isMobile = event.matches ?? window.innerWidth <= 760;
+      if (isMobile === consultationMenuOverlay) return;
+      const header = serviceHeader.headerRef.current;
+      const focusWasInMenu = document.activeElement === menuToggleRef.current
+        || mobileMenuRef.current?.contains(document.activeElement)
+        || header?.querySelector('.primary-nav--dropdown')?.contains(document.activeElement)
+        || (mobileMenuHadFocus.current && document.activeElement === document.body);
+      mobileMenuHadFocus.current = false;
+      setMenuOpen(false);
+      setConsultationMenuOverlay(false);
+      if (focusWasInMenu) {
+        window.requestAnimationFrame(() => menuToggleRef.current?.focus({ preventScroll: true }));
+      }
+    };
+    if (mobile?.addEventListener) mobile.addEventListener('change', onChange);
+    else if (mobile) mobile.addListener(onChange);
+    else window.addEventListener('resize', onChange);
+    // The viewport may have changed between the click and subscribing.
+    onChange({ matches: mobile?.matches ?? window.innerWidth <= 760 });
+    return () => {
+      if (mobile?.removeEventListener) mobile.removeEventListener('change', onChange);
+      else if (mobile) mobile.removeListener(onChange);
+      else window.removeEventListener('resize', onChange);
+    };
+  }, [isConsultationPage, menuOpen, consultationMenuOverlay, serviceHeader.headerRef]);
+
+  // Full-screen mobile menus keep the background inert and restore it on close.
   useLayoutEffect(() => {
-    if (!isServiceMenuOpen && !isHomeMenuOpen) return undefined;
+    if (!isServiceMenuOpen && !isMobileOverlayOpen) return undefined;
     const backgroundElements = [...document.querySelectorAll('main, .site-footer, .skip-link')];
-    if (isHomeMenuOpen && serviceHeader.headerRef.current) backgroundElements.push(serviceHeader.headerRef.current);
+    if (isMobileOverlayOpen && serviceHeader.headerRef.current) backgroundElements.push(serviceHeader.headerRef.current);
     const alreadyInert = backgroundElements.map((element) => element.hasAttribute('inert'));
     const previousOverflow = document.body.style.overflow;
-    const menuClass = isHomeMenuOpen ? 'home-menu-open' : 'service-menu-open';
+    const menuClass = isMobileOverlayOpen ? 'mobile-menu-open' : 'service-menu-open';
     const hadMenuClass = document.body.classList.contains(menuClass);
     // Move focus out of the header before making the blurred background inert.
-    if (isHomeMenuOpen) homeMenuCloseRef.current?.focus({ preventScroll: true });
+    if (isMobileOverlayOpen) mobileMenuCloseRef.current?.focus({ preventScroll: true });
     backgroundElements.forEach((element) => element.setAttribute('inert', ''));
     document.body.classList.add(menuClass);
     document.body.style.overflow = 'hidden';
@@ -90,7 +126,7 @@ export default function Header() {
       if (!hadMenuClass) document.body.classList.remove(menuClass);
       document.body.style.overflow = previousOverflow;
     };
-  }, [isHomeMenuOpen, isServiceMenuOpen, serviceHeader.headerRef]);
+  }, [isMobileOverlayOpen, isServiceMenuOpen, serviceHeader.headerRef]);
 
   useEffect(() => {
     if (!isServiceMenuOpen || !window.matchMedia) return undefined;
@@ -113,7 +149,7 @@ export default function Header() {
     if (label === 'Home') return location.pathname === '/' && (!location.hash || location.hash === '#vision');
     if (label === 'Services') return isServicePage || location.hash === '#services';
     if (label === 'About') return location.hash === '#about';
-    if (label === 'Contact') return location.pathname === '/consultation';
+    if (label === 'Contact') return isConsultationPage;
     return false;
   }
 
@@ -131,28 +167,43 @@ export default function Header() {
     window.setTimeout(() => serviceHeader.triggerRef.current?.focus({ preventScroll: true }), 0);
   }
 
-  function closeHomeNavigation() {
+  function dismissNavigation() {
     setMenuOpen(false);
+    setConsultationMenuOverlay(false);
+  }
+
+  function closeMobileNavigation() {
+    dismissNavigation();
     window.setTimeout(() => menuToggleRef.current?.focus({ preventScroll: true }), 0);
   }
 
   function handleMenuToggle() {
     if (menuOpen && isServicePage) closeServiceNavigation();
-    else if (menuOpen && isHomePage) closeHomeNavigation();
-    else setMenuOpen(!menuOpen);
+    else if (menuOpen && usesMobileOverlay) closeMobileNavigation();
+    else if (menuOpen) setMenuOpen(false);
+    else {
+      const mobile = window.matchMedia?.('(max-width: 760px)').matches ?? window.innerWidth <= 760;
+      setConsultationMenuOverlay(isConsultationPage && mobile);
+      setMenuOpen(true);
+    }
   }
 
   function handleHeaderFocus(event) {
     if (isServicePage) serviceHeader.onFocus();
-    if (isHomePage) homeMenuHadFocus.current = event.target === menuToggleRef.current;
+    if (isHomePage || isConsultationPage) {
+      mobileMenuHadFocus.current = event.target === menuToggleRef.current
+        || Boolean(event.target.closest('.primary-nav--dropdown'));
+    }
   }
 
   function handleHeaderBlur(event) {
     // The modal backdrop handles outside clicks; do not unmount it on blur first.
-    if (isServiceMenuOpen || isHomeMenuOpen) return;
+    if (isServiceMenuOpen || isMobileOverlayOpen) return;
     if (!event.currentTarget.contains(event.relatedTarget)) {
       const widening = isHomePage && (window.matchMedia?.('(min-width: 761px)').matches ?? window.innerWidth > 760);
-      if (event.relatedTarget || !widening) homeMenuHadFocus.current = false;
+      const changingConsultationBreakpoint = isConsultationPage && menuOpen
+        && (window.matchMedia?.('(max-width: 760px)').matches ?? window.innerWidth <= 760) !== consultationMenuOverlay;
+      if (event.relatedTarget || (!widening && !changingConsultationBreakpoint)) mobileMenuHadFocus.current = false;
       setMenuOpen(false);
     }
     if (isServicePage) serviceHeader.onBlur(event);
@@ -160,7 +211,7 @@ export default function Header() {
 
   function trapMenuFocus(event, container) {
     if (event.key !== 'Tab' || !container) return;
-    const controls = [...container.querySelectorAll('.menu-toggle, .home-menu__close, .primary-nav a[href]')];
+    const controls = [...container.querySelectorAll('.menu-toggle, .mobile-menu__close, .primary-nav a[href]')];
     const first = controls[0];
     const last = controls[controls.length - 1];
     if (event.shiftKey && document.activeElement === first) {
@@ -187,13 +238,13 @@ export default function Header() {
     if (isServiceMenuOpen) trapMenuFocus(event, serviceHeader.headerRef.current);
   }
 
-  function handleHomeMenuKeyDown(event) {
+  function handleMobileMenuKeyDown(event) {
     if (event.key === 'Escape') {
       event.preventDefault();
-      closeHomeNavigation();
+      closeMobileNavigation();
       return;
     }
-    trapMenuFocus(event, homeMenuRef.current);
+    trapMenuFocus(event, mobileMenuRef.current);
   }
 
   function renderNavigationLinks(menuDetails = false) {
@@ -203,7 +254,7 @@ export default function Header() {
         to={item.to}
         className={isActive(item.label) ? 'is-active' : ''}
         aria-current={isActive(item.label) ? 'page' : undefined}
-        onClick={() => setMenuOpen(false)}
+        onClick={dismissNavigation}
       >
         {menuDetails && <span className="navigation-menu__index" aria-hidden="true">0{index + 1}</span>}
         <span className={menuDetails ? 'navigation-menu__label' : undefined}>{item.label}</span>
@@ -217,7 +268,7 @@ export default function Header() {
       <>
         <div className="navigation-menu__heading" aria-hidden="true"><span>Explore</span><span>KWH Holdings</span></div>
         {renderNavigationLinks(true)}
-        <Link className="mobile-nav-cta" to="/consultation" onClick={() => setMenuOpen(false)}>
+        <Link className="mobile-nav-cta" to="/consultation" onClick={dismissNavigation}>
           <span>Start a project</span><DiagonalArrowIcon size={19} />
         </Link>
       </>
@@ -241,7 +292,7 @@ export default function Header() {
         </button>
       )}
       {isServiceMenuOpen && <div className="service-menu-backdrop" aria-hidden="true" onClick={closeServiceNavigation} />}
-      {!isServicePage && !isHomePage && menuOpen && <div className="standard-menu-backdrop" aria-hidden="true" />}
+      {!isServicePage && !usesMobileOverlay && menuOpen && <div className="standard-menu-backdrop" aria-hidden="true" />}
       <header
         id="site-header"
         ref={serviceHeader.headerRef}
@@ -254,7 +305,7 @@ export default function Header() {
         onKeyDownCapture={handleHeaderKeyDown}
       >
         <div className="header-inner container">
-          {!isServicePage && <div className="header-brand" onClick={() => setMenuOpen(false)}><Logo /></div>}
+          {!isServicePage && <div className="header-brand" onClick={dismissNavigation}><Logo /></div>}
           {!isServicePage && (
             <nav className="primary-nav primary-nav--inline" aria-label="Primary navigation">
               {renderNavigationLinks()}
@@ -264,14 +315,14 @@ export default function Header() {
             ref={menuToggleRef}
             type="button"
             className="menu-toggle"
-            aria-label={menuOpen && !isHomePage ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-label={menuOpen && !usesMobileOverlay ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={menuOpen}
             aria-controls="primary-navigation"
             onClick={handleMenuToggle}
           >
-            {menuOpen && !isHomePage ? <X size={24} aria-hidden="true" /> : <MenuIcon aria-hidden="true" />}
+            {menuOpen && !usesMobileOverlay ? <X size={24} aria-hidden="true" /> : <MenuIcon aria-hidden="true" />}
           </button>
-          {!isHomePage && (
+          {!usesMobileOverlay && (
             <nav
               id="primary-navigation"
               className={`primary-nav ${!isServicePage ? 'primary-nav--dropdown' : ''} ${menuOpen ? 'is-open' : ''}`}
@@ -283,30 +334,30 @@ export default function Header() {
           )}
         </div>
       </header>
-      {isHomePage && (
+      {usesMobileOverlay && (
         <div
-          ref={homeMenuRef}
-          className="home-menu-overlay"
+          ref={mobileMenuRef}
+          className="mobile-menu-overlay"
           role="dialog"
           aria-modal="true"
           aria-label="Navigation menu"
-          hidden={!isHomeMenuOpen}
-          onKeyDownCapture={handleHomeMenuKeyDown}
-          onFocusCapture={() => { homeMenuHadFocus.current = true; }}
+          hidden={!isMobileOverlayOpen}
+          onKeyDownCapture={handleMobileMenuKeyDown}
+          onFocusCapture={() => { mobileMenuHadFocus.current = true; }}
         >
-          <div className="home-menu__backdrop" aria-hidden="true" onClick={closeHomeNavigation} />
+          <div className="mobile-menu__backdrop" aria-hidden="true" onClick={closeMobileNavigation} />
           <button
-            ref={homeMenuCloseRef}
+            ref={mobileMenuCloseRef}
             type="button"
-            className="home-menu__close"
+            className="mobile-menu__close"
             aria-label="Close navigation menu"
             aria-controls="primary-navigation"
-            aria-expanded={isHomeMenuOpen}
-            onClick={closeHomeNavigation}
+            aria-expanded={isMobileOverlayOpen}
+            onClick={closeMobileNavigation}
           >
             <X size={24} aria-hidden="true" />
           </button>
-          <nav id="primary-navigation" className={`primary-nav home-menu__nav ${isHomeMenuOpen ? 'is-open' : ''}`} aria-label="Navigation menu">
+          <nav id="primary-navigation" className={`primary-nav mobile-menu__nav ${isMobileOverlayOpen ? 'is-open' : ''}`} aria-label="Navigation menu">
             {renderMenuContents()}
           </nav>
         </div>

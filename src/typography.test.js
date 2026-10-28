@@ -56,12 +56,12 @@ describe('navigation and action typography', () => {
     expect(ruleFor('.site-header--standard .primary-nav--dropdown').maxHeight).toBe('calc(100dvh - var(--header-min-height) - 12px)');
   });
 
-  it('places the home mobile menu and blur over the entire page, including the header', () => {
+  it('places full-screen mobile menus and blur over the entire page, including the header', () => {
     const mobile = [...stylesheet.sheet.cssRules].find((rule) => rule.conditionText === '(max-width: 760px)');
     const ruleFor = (selector) => [...mobile.cssRules].find((rule) => rule.selectorText === selector).style;
-    const overlay = ruleFor('.home-menu-overlay:not([hidden])');
-    const backdrop = ruleFor('.home-menu__backdrop');
-    const close = ruleFor('.home-menu__close');
+    const overlay = ruleFor('.mobile-menu-overlay:not([hidden])');
+    const backdrop = ruleFor('.mobile-menu__backdrop');
+    const close = ruleFor('.mobile-menu__close');
     const header = [...stylesheet.sheet.cssRules].find((rule) => rule.selectorText === '.site-header').style;
     expect(overlay.position).toBe('fixed');
     expect(overlay.inset).toBe('0px');
@@ -73,7 +73,7 @@ describe('navigation and action typography', () => {
     expect(backdrop.getPropertyValue('touch-action')).toBe('none');
     expect(close.width).toBe('44px');
     expect(close.height).toBe('44px');
-    expect(styles).toContain('body.home-menu-open .site-header,'); // Fallback when backdrop filters are unavailable.
+    expect(styles).toContain('body.mobile-menu-open .site-header,'); // Fallback when backdrop filters are unavailable.
   });
 
   it('gives the dashboard a viewport-sized minimum without fixing its height', () => {

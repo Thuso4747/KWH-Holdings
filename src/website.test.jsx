@@ -102,7 +102,7 @@ describe('navigation and home sections', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
     expect(header).not.toHaveAttribute('inert');
     expect(main).not.toHaveAttribute('inert');
-    expect(document.body).not.toHaveClass('home-menu-open');
+    expect(document.body).not.toHaveClass('mobile-menu-open');
     expect(document.body.style.overflow).not.toBe('hidden');
     expect(screen.queryByRole('dialog', { name: 'Navigation menu' })).not.toBeInTheDocument();
   });
@@ -126,7 +126,7 @@ describe('navigation and home sections', () => {
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(dialog).toContainElement(menu);
     expect(menu).toBeVisible();
-    expect(document.querySelector('.home-menu__backdrop')).toHaveAttribute('aria-hidden', 'true');
+    expect(document.querySelector('.mobile-menu__backdrop')).toHaveAttribute('aria-hidden', 'true');
     expect(document.querySelector('.standard-menu-backdrop')).not.toBeInTheDocument();
     expect(within(menu).getByRole('link', { name: 'Services' })).toHaveAttribute('href', '/#services');
     expect(within(menu).getByRole('link', { name: 'Start a project' })).toHaveAttribute('href', '/consultation');
@@ -158,7 +158,7 @@ describe('navigation and home sections', () => {
       expect(main).toHaveAttribute('inert');
       expect(footer).toHaveAttribute('inert');
       expect(skipLink).toHaveAttribute('inert');
-      expect(document.body).toHaveClass('home-menu-open');
+      expect(document.body).toHaveClass('mobile-menu-open');
       expect(document.body.style.overflow).toBe('hidden');
       await user.tab({ shift: true });
       expect(lastLink).toHaveFocus();
@@ -169,7 +169,7 @@ describe('navigation and home sections', () => {
       expect(main).not.toHaveAttribute('inert');
       expect(skipLink).not.toHaveAttribute('inert');
       expect(footer).toHaveAttribute('inert');
-      expect(document.body).not.toHaveClass('home-menu-open');
+      expect(document.body).not.toHaveClass('mobile-menu-open');
       expect(document.body.style.overflow).toBe('auto');
       await waitFor(() => expect(toggle).toHaveFocus());
     } finally {
@@ -182,7 +182,7 @@ describe('navigation and home sections', () => {
     renderAt(<Header />);
     const toggle = screen.getByRole('button', { name: 'Open navigation menu' });
     await user.click(toggle);
-    await user.click(document.querySelector('.home-menu__backdrop'));
+    await user.click(document.querySelector('.mobile-menu__backdrop'));
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     await waitFor(() => expect(toggle).toHaveFocus());
@@ -239,7 +239,7 @@ describe('navigation and home sections', () => {
         listeners.forEach((listener) => listener({ matches: true }));
       });
       expect(toggle).toHaveAttribute('aria-expanded', 'false');
-      expect(document.body).not.toHaveClass('home-menu-open');
+      expect(document.body).not.toHaveClass('mobile-menu-open');
       expect(screen.getByRole('banner')).not.toHaveAttribute('inert');
       expect(within(screen.getByRole('navigation', { name: 'Primary navigation' })).getByRole('link', { name: 'Home' })).toHaveFocus();
     } finally {
@@ -469,7 +469,7 @@ describe('navigation and home sections', () => {
     expect(screen.queryByRole('button', { name: 'Show navigation' })).not.toBeInTheDocument();
   });
 
-  it('retains the non-modal dropdown and outside dismissal on other standard pages', async () => {
+  it('retains the non-modal consultation dropdown on desktop', async () => {
     const user = userEvent.setup();
     renderAt(<><Header /><main>Page content</main></>, '/consultation');
     const main = screen.getByRole('main');
@@ -480,6 +480,127 @@ describe('navigation and home sections', () => {
     expect(main).not.toHaveAttribute('inert');
     fireEvent.pointerDown(document.body);
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('opens an accessible full-screen menu on the mobile consultation page', async () => {
+    const widthDescriptor = Object.getOwnPropertyDescriptor(window, 'innerWidth');
+    const previousOverflow = document.body.style.overflow;
+    Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: 390 });
+    document.body.style.overflow = 'auto';
+    try {
+      const user = userEvent.setup();
+      renderAt(<><a className="skip-link" href="#main-content">Skip to content</a><Header /><main id="main-content"><button>Page action</button></main><footer className="site-footer">Footer</footer></>, '/consultation');
+      const header = screen.getByRole('banner');
+      const main = screen.getByRole('main');
+      const footer = document.querySelector('.site-footer');
+      const skipLink = document.querySelector('.skip-link');
+      const toggle = screen.getByRole('button', { name: 'Open navigation menu' });
+      expect(document.getElementById(toggle.getAttribute('aria-controls'))).toBeInTheDocument();
+      footer.setAttribute('inert', '');
+      await user.click(toggle);
+      const dialog = screen.getByRole('dialog', { name: 'Navigation menu' });
+      const close = within(dialog).getByRole('button', { name: 'Close navigation menu' });
+      const lastLink = within(dialog).getByRole('link', { name: 'Start a project' });
+      expect(dialog).toHaveClass('mobile-menu-overlay');
+      expect(dialog).toHaveAttribute('aria-modal', 'true');
+      expect(close).toHaveFocus();
+      expect(toggle).toHaveAttribute('aria-expanded', 'true');
+      expect(within(dialog).getByRole('link', { name: 'Contact' })).toHaveAttribute('aria-current', 'page');
+      expect(lastLink).toHaveAttribute('href', '/consultation');
+      expect(document.querySelector('.standard-menu-backdrop')).not.toBeInTheDocument();
+      for (const element of [header, main, footer, skipLink]) expect(element).toHaveAttribute('inert');
+      expect(document.body).toHaveClass('mobile-menu-open');
+      expect(document.body.style.overflow).toBe('hidden');
+      await user.tab({ shift: true });
+      expect(lastLink).toHaveFocus();
+      await user.tab();
+      expect(close).toHaveFocus();
+      await user.keyboard('{Escape}');
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      for (const element of [header, main, skipLink]) expect(element).not.toHaveAttribute('inert');
+      expect(footer).toHaveAttribute('inert'); // Preserve a pre-existing inert state.
+      expect(document.body).not.toHaveClass('mobile-menu-open');
+      expect(document.body.style.overflow).toBe('auto');
+      await waitFor(() => expect(toggle).toHaveFocus());
+      await user.click(toggle);
+      await user.click(document.querySelector('.mobile-menu__backdrop'));
+      expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      await waitFor(() => expect(toggle).toHaveFocus());
+    } finally {
+      document.body.style.overflow = previousOverflow;
+      Object.defineProperty(window, 'innerWidth', widthDescriptor);
+    }
+  });
+
+  it('keeps consultation form answers when the mobile menu is closed or links to this page', async () => {
+    const widthDescriptor = Object.getOwnPropertyDescriptor(window, 'innerWidth');
+    Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: 390 });
+    try {
+      const user = userEvent.setup();
+      renderAt(<><Header /><ConsultationPage /></>, '/consultation');
+      const name = screen.getByRole('textbox', { name: 'Full Name' });
+      await user.type(name, 'Lerato');
+      const toggle = screen.getByRole('button', { name: 'Open navigation menu' });
+      await user.click(toggle);
+      await user.click(screen.getByRole('button', { name: 'Close navigation menu' }));
+      expect(name).toHaveValue('Lerato');
+      await user.click(toggle);
+      const dialog = screen.getByRole('dialog', { name: 'Navigation menu' });
+      await user.click(within(dialog).getByRole('link', { name: 'Start a project' }));
+      expect(name).toHaveValue('Lerato');
+      expect(document.body).not.toHaveClass('mobile-menu-open');
+      expect(screen.getByRole('main')).not.toHaveAttribute('inert');
+    } finally {
+      Object.defineProperty(window, 'innerWidth', widthDescriptor);
+    }
+  });
+
+  it('closes the consultation menu across mobile and desktop breakpoints', async () => {
+    const widthDescriptor = Object.getOwnPropertyDescriptor(window, 'innerWidth');
+    Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: 390 });
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => { callback(0); return 1; });
+    try {
+      const user = userEvent.setup();
+      renderAt(<><Header /><main>Page content</main></>, '/consultation');
+      const toggle = screen.getByRole('button', { name: 'Open navigation menu' });
+      await user.click(toggle);
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      window.innerWidth = 1024;
+      fireEvent.resize(window);
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      expect(toggle).toHaveFocus();
+      expect(document.body).not.toHaveClass('mobile-menu-open');
+      expect(screen.getByRole('main')).not.toHaveAttribute('inert');
+      await user.click(toggle);
+      expect(screen.getByRole('navigation', { name: 'Navigation menu' })).toHaveClass('primary-nav--dropdown');
+      window.innerWidth = 390;
+      fireEvent.resize(window);
+      expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      expect(toggle).toHaveFocus();
+      await user.click(toggle);
+      expect(screen.getByRole('dialog')).toHaveAttribute('aria-modal', 'true');
+    } finally {
+      Object.defineProperty(window, 'innerWidth', widthDescriptor);
+    }
+  });
+
+  it('keeps the existing non-modal dropdown on other mobile pages', async () => {
+    const widthDescriptor = Object.getOwnPropertyDescriptor(window, 'innerWidth');
+    Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: 390 });
+    try {
+      const user = userEvent.setup();
+      renderAt(<><Header /><main>Page content</main></>, '/privacy');
+      const toggle = screen.getByRole('button', { name: 'Open navigation menu' });
+      await user.click(toggle);
+      expect(screen.getByRole('navigation', { name: 'Navigation menu' })).toHaveClass('primary-nav--dropdown');
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(screen.getByRole('main')).not.toHaveAttribute('inert');
+      fireEvent.pointerDown(document.body);
+      expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    } finally {
+      Object.defineProperty(window, 'innerWidth', widthDescriptor);
+    }
   });
 
   it('offers direct department navigation in the image-led introduction', () => {

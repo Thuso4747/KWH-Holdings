@@ -109,7 +109,7 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
 .primary-nav > a:not(.mobile-nav-cta)::after { content: ''; position: absolute; left: 0; right: 100%; bottom: 3px; height: 2px; background: #77999a; transition: right .2s ease; }
 .primary-nav > a:hover, .primary-nav > a.is-active { color: #243334; }
 .primary-nav > a:hover::after, .primary-nav > a.is-active::after { right: 0; }
-.menu-toggle, .mobile-nav-cta, .service-menu-backdrop, .standard-menu-backdrop, .home-menu-overlay,
+.menu-toggle, .mobile-nav-cta, .service-menu-backdrop, .standard-menu-backdrop, .mobile-menu-overlay,
 .navigation-menu__heading, .navigation-menu__index, .navigation-menu__arrow { display: none; }
 
 /* Keep the main links truly centred between the logo and the menu control. */
@@ -462,8 +462,8 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
   .menu-toggle { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; background: transparent; color: #293b3b; }
 
   .standard-menu-backdrop { display: block; position: fixed; z-index: 19; inset: 0; background: rgba(25, 37, 37, .16); pointer-events: none; }
-  .home-menu-overlay:not([hidden]) { display: block; position: fixed; z-index: 40; inset: 0; }
-  .home-menu__backdrop {
+  .mobile-menu-overlay:not([hidden]) { display: block; position: fixed; z-index: 40; inset: 0; }
+  .mobile-menu__backdrop {
     position: absolute;
     inset: 0;
     background: linear-gradient(180deg, rgba(13, 20, 21, .86), rgba(17, 25, 26, .83) 60%, rgba(13, 20, 21, .72));
@@ -471,7 +471,7 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
     backdrop-filter: blur(12px);
     touch-action: none;
   }
-  .home-menu__close {
+  .mobile-menu__close {
     position: absolute;
     top: 16px;
     right: 20px;
@@ -484,12 +484,12 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
     background: transparent;
     color: #fff;
   }
-  .home-menu__close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 5px #1e2929; }
+  .mobile-menu__close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 5px #1e2929; }
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    body.home-menu-open .site-header,
-    body.home-menu-open main,
-    body.home-menu-open .site-footer,
-    body.home-menu-open .skip-link { filter: blur(12px); }
+    body.mobile-menu-open .site-header,
+    body.mobile-menu-open main,
+    body.mobile-menu-open .site-footer,
+    body.mobile-menu-open .skip-link { filter: blur(12px); }
   }
   .primary-nav { position: absolute; top: calc(100% - 5px); left: 20px; right: 20px; display: none; align-items: stretch; gap: 0; margin: 0; padding: 12px 20px 20px; background: #fff; }
   .primary-nav.is-open { display: flex; flex-direction: column; }
@@ -564,7 +564,7 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
   .site-header--service.is-over-light .menu-toggle:not([aria-expanded='true']) { color: #203839; filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff); }
   .site-header--service .menu-toggle:focus-visible { outline: 2px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 5px #1e2929; }
   .site-header--service .primary-nav,
-  .home-menu-overlay .primary-nav {
+  .mobile-menu-overlay .primary-nav {
     top: 68px;
     align-items: stretch;
     max-height: calc(100vh - 76px);
@@ -577,19 +577,19 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
     background: transparent;
     box-shadow: none;
   }
-  .home-menu-overlay .primary-nav.is-open { animation: mobile-menu-enter .24s ease-out both; }
-  .home-menu-overlay .primary-nav > a:focus-visible { outline: 2px solid #fff; outline-offset: 4px; box-shadow: 0 0 0 7px #1e2929; }
+  .mobile-menu-overlay .primary-nav.is-open { animation: mobile-menu-enter .24s ease-out both; }
+  .mobile-menu-overlay .primary-nav > a:focus-visible { outline: 2px solid #fff; outline-offset: 4px; box-shadow: 0 0 0 7px #1e2929; }
   .site-header--service .navigation-menu__heading,
-  .home-menu-overlay .navigation-menu__heading { color: #d2e5e2; border-color: rgba(232, 247, 245, .38); text-shadow: 0 1px 2px #000; }
+  .mobile-menu-overlay .navigation-menu__heading { color: #d2e5e2; border-color: rgba(232, 247, 245, .38); text-shadow: 0 1px 2px #000; }
   .site-header--service .navigation-menu__heading span:last-child,
   .site-header--service .navigation-menu__index,
   .site-header--service .navigation-menu__arrow,
-  .home-menu-overlay .navigation-menu__heading span:last-child,
-  .home-menu-overlay .navigation-menu__index,
-  .home-menu-overlay .navigation-menu__arrow { color: #d2e5e2; }
+  .mobile-menu-overlay .navigation-menu__heading span:last-child,
+  .mobile-menu-overlay .navigation-menu__index,
+  .mobile-menu-overlay .navigation-menu__arrow { color: #d2e5e2; }
   .site-header--service .primary-nav.is-open > a:not(.mobile-nav-cta),
   .site-header--service.is-over-light .primary-nav.is-open > a:not(.mobile-nav-cta),
-  .home-menu-overlay .primary-nav.is-open > a:not(.mobile-nav-cta) {
+  .mobile-menu-overlay .primary-nav.is-open > a:not(.mobile-nav-cta) {
     display: flex;
     align-items: center;
     gap: 14px;
@@ -603,7 +603,7 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
     text-shadow: 0 1px 2px #000, 0 0 7px rgba(0, 0, 0, .8);
   }
   .site-header--service .primary-nav > a:not(.mobile-nav-cta)::after,
-  .home-menu-overlay .primary-nav > a:not(.mobile-nav-cta)::after {
+  .mobile-menu-overlay .primary-nav > a:not(.mobile-nav-cta)::after {
     display: block;
     left: 0;
     right: 100%;
@@ -613,11 +613,11 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
   }
   .site-header--service .primary-nav > a:hover::after,
   .site-header--service .primary-nav > a.is-active::after,
-  .home-menu-overlay .primary-nav > a:hover::after,
-  .home-menu-overlay .primary-nav > a.is-active::after { right: 0; }
+  .mobile-menu-overlay .primary-nav > a:hover::after,
+  .mobile-menu-overlay .primary-nav > a.is-active::after { right: 0; }
   .site-header--service.is-over-light .primary-nav.is-open > a:not(.mobile-nav-cta)::after { background: #d0ebe8; box-shadow: 0 1px 3px #111; }
   .site-header--service .primary-nav .mobile-nav-cta,
-  .home-menu-overlay .primary-nav .mobile-nav-cta {
+  .mobile-menu-overlay .primary-nav .mobile-nav-cta {
     display: flex;
     align-items: center;
     justify-content: space-between;
