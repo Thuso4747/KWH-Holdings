@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, Minus } from 'lucide-react';
 import PageTitle from '../components/PageTitle';
+import ServiceHeadlinePhrase from '../components/ServiceHeadlinePhrase';
 
 function OfferingCard({ offering, service, index }) {
   const [expanded, setExpanded] = useState(false);
@@ -97,7 +98,10 @@ export default function ServicePage({ service }) {
       <section className={`service-hero service-hero--${service.slug}`} style={{ backgroundImage: `url(${service.image})` }}>
         <div className="container service-hero__inner">
           <p className="eyebrow eyebrow--light">KWH HOLDINGS / {service.label.toUpperCase()}</p>
-          <h1>{service.heroFirst}<br /><span>{service.heroAccent}</span></h1>
+          <h1 aria-label={`${service.heroFirst} ${service.heroAccent}`}>
+            {service.heroFirst}<br />
+            <ServiceHeadlinePhrase words={service.heroWords} prefix={service.heroPrefix} suffix={service.heroSuffix} />
+          </h1>
           <p>{service.heroDescription}</p>
           <div className="button-row">
             <Link className="button button--white" to={`/consultation?service=${service.slug}`}>Start Project <ArrowRight size={17} /></Link>
