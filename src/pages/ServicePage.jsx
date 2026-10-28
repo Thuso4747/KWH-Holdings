@@ -2,7 +2,6 @@ import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, Minus } from 'lucide-react';
 import PageTitle from '../components/PageTitle';
-import ServiceHeadlinePhrase from '../components/ServiceHeadlinePhrase';
 
 function OfferingCard({ offering, service, index }) {
   const [expanded, setExpanded] = useState(false);
@@ -92,15 +91,19 @@ function ServiceTabs({ service }) {
 }
 
 export default function ServicePage({ service }) {
+  const headline = [service.heroFirst, service.heroPrefix, service.heroAccent, service.heroSuffix].filter(Boolean).join(' ');
+
   return (
     <main id="main-content">
       <PageTitle title={service.label} description={service.intro} />
       <section className={`service-hero service-hero--${service.slug}`} style={{ backgroundImage: `url(${service.image})` }}>
         <div className="container service-hero__inner">
           <p className="eyebrow eyebrow--light">KWH HOLDINGS / {service.label.toUpperCase()}</p>
-          <h1 aria-label={`${service.heroFirst} ${service.heroAccent}`}>
+          <h1 aria-label={headline}>
             {service.heroFirst}<br />
-            <ServiceHeadlinePhrase words={service.heroWords} prefix={service.heroPrefix} suffix={service.heroSuffix} />
+            {service.heroPrefix && <><span className="service-hero__fixed-word">{service.heroPrefix}</span>{' '}</>}
+            <span className="service-hero__accent">{service.heroAccent}</span>
+            {service.heroSuffix && <>{' '}<span className="service-hero__fixed-word">{service.heroSuffix}</span></>}
           </h1>
           <p>{service.heroDescription}</p>
           <div className="button-row">
