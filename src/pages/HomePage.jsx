@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDown, ArrowRight, ArrowUpRight, Code2 } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUpRight, Code2, Play, Square } from 'lucide-react';
 import PageTitle from '../components/PageTitle';
 import { PresentationIcon } from '../components/PresentationIcon';
 import { StrategyIcon } from '../components/StrategyIcon';
 import { departments } from '../data/services';
 
 const icons = { marketing: StrategyIcon, business: PresentationIcon, software: Code2 };
+const heroWords = ['Solutions', 'Systems', 'Innovations', 'Improvements'];
 
 function DepartmentCard({ department, index }) {
   const Icon = icons[department.slug];
@@ -55,6 +56,7 @@ function HomeVisual({ headingRef }) {
 
 export default function HomePage() {
   const [showScrollPrompt, setShowScrollPrompt] = useState(true);
+  const [isWordAnimationStopped, setIsWordAnimationStopped] = useState(false);
   const heroRef = useRef(null);
   const visionHeadingRef = useRef(null);
 
@@ -97,9 +99,33 @@ export default function HomePage() {
       <PageTitle title="Strategic solutions for modern businesses" description="KWH Holdings brings marketing, business strategy, and software development together to help modern businesses grow." />
       <section className="home-hero" ref={heroRef}>
         <div className="container home-hero__inner">
-          <div className="home-hero__headline">
+          <div className={`home-hero__headline ${isWordAnimationStopped ? 'is-animation-stopped' : ''}`}>
             <p className="eyebrow"><span aria-hidden="true">+</span> STRATEGY · CREATIVITY · TECHNOLOGY</p>
-            <h1><span>Strategic Solutions</span><br />for Modern Businesses</h1>
+            <h1 aria-label="Strategic Solutions for Modern Businesses">
+              <span className="home-hero__headline-accent">
+                Strategic{' '}
+                <span className="rotating-word" aria-hidden="true">
+                  <span className="rotating-word__sizer">Improvements</span>
+                  {heroWords.map((word, index) => (
+                    <span
+                      className={`rotating-word__item ${index === 0 ? 'rotating-word__item--first' : ''}`}
+                      style={{ '--word-delay': `${index * 2}s` }}
+                      key={word}
+                    >
+                      {word}
+                    </span>
+                  ))}
+                </span>
+              </span><br />for Modern Businesses
+            </h1>
+            <button
+              className="home-hero__motion-toggle"
+              type="button"
+              onClick={() => setIsWordAnimationStopped((stopped) => !stopped)}
+            >
+              {isWordAnimationStopped ? <Play size={12} fill="currentColor" aria-hidden="true" /> : <Square size={11} fill="currentColor" aria-hidden="true" />}
+              {isWordAnimationStopped ? 'Restart animation' : 'Stop animation'}
+            </button>
           </div>
           <div className="home-hero__summary">
             <p>We bridge the gap between vision and execution with integrated consulting across marketing, business strategy and software development. Scale your business with confidence.</p>

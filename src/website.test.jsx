@@ -50,6 +50,36 @@ describe('navigation and home sections', () => {
     expect(screen.queryByRole('button', { name: /view case study/i })).not.toBeInTheDocument();
   });
 
+  it('keeps one accessible heading while the visual words rotate in order', () => {
+    const setInterval = vi.spyOn(window, 'setInterval');
+    const { unmount } = renderAt(<HomePage />);
+    const heading = screen.getByRole('heading', { level: 1, name: 'Strategic Solutions for Modern Businesses' });
+    const rotation = heading.querySelector('.rotating-word');
+    expect(rotation).toHaveAttribute('aria-hidden', 'true');
+    const words = [...rotation.querySelectorAll('.rotating-word__item')];
+    expect(words.map((word) => word.textContent.trim())).toEqual(['Solutions', 'Systems', 'Innovations', 'Improvements']);
+    expect(words.map((word) => word.style.getPropertyValue('--word-delay'))).toEqual(['0s', '2s', '4s', '6s']);
+    expect(rotation.querySelector('.rotating-word__sizer')).toHaveTextContent('Improvements');
+    expect(setInterval).not.toHaveBeenCalled(); // CSS owns the animation, with no timer to leak on unmount.
+    unmount();
+    expect(rotation.isConnected).toBe(false);
+  });
+
+  it('lets visitors stop and restart the word animation without losing focus', async () => {
+    const user = userEvent.setup();
+    renderAt(<HomePage />);
+    const button = screen.getByRole('button', { name: 'Stop animation' });
+    const headline = button.closest('.home-hero__headline');
+    expect(headline).not.toHaveClass('is-animation-stopped');
+    button.focus();
+    await user.keyboard('{Enter}');
+    expect(headline).toHaveClass('is-animation-stopped');
+    expect(screen.getByRole('button', { name: 'Restart animation' })).toHaveFocus();
+    await user.keyboard(' ');
+    expect(headline).not.toHaveClass('is-animation-stopped');
+    expect(screen.getByRole('button', { name: 'Stop animation' })).toHaveFocus();
+  });
+
   it('provides a scroll link from the dashboard to the next section', () => {
     renderAt(<HomePage />);
     const link = screen.getByRole('link', { name: 'Scroll to explore' });

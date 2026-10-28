@@ -99,6 +99,27 @@ describe('navigation and action typography', () => {
     expect(hidden.pointerEvents).toBe('none');
   });
 
+  it('keeps the rotating word stable and offers a still reduced-motion heading', () => {
+    const rules = [...stylesheet.sheet.cssRules];
+    const ruleFor = (selector, list = rules) => list.find((rule) => rule.selectorText === selector).style;
+    const word = ruleFor('.rotating-word');
+    expect(word.display).toBe('inline-grid');
+    expect(word.maxWidth).toBe('100%');
+    expect(ruleFor('.rotating-word__sizer').visibility).toBe('hidden');
+    const animation = ruleFor('.rotating-word__item').animation;
+    expect(animation).toContain('home-word-cycle 8s');
+    expect(animation).toContain('var(--word-delay) infinite both');
+    expect(rules.find((rule) => rule.name === 'home-word-cycle')).toBeDefined();
+    expect(ruleFor('.is-animation-stopped .rotating-word__item').animation).toBe('none');
+    expect(ruleFor('.is-animation-stopped .rotating-word__item--first').opacity).toBe('1');
+
+    const reducedMotion = rules.find((rule) => rule.conditionText === '(prefers-reduced-motion: reduce)');
+    const reducedRules = [...reducedMotion.cssRules];
+    expect(ruleFor('.rotating-word__item', reducedRules).getPropertyValue('animation')).toBe('none');
+    expect(ruleFor('.rotating-word__item--first', reducedRules).opacity).toBe('1');
+    expect(ruleFor('.home-hero__motion-toggle', reducedRules).display).toBe('none');
+  });
+
   it('balances the home hero and allows its columns to wrap', () => {
     document.body.innerHTML = `
       <section class="home-hero"><div class="home-hero__inner">
