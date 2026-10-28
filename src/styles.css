@@ -454,7 +454,7 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
   .header-inner { gap: 20px; }
   /* Equal outer columns keep the logo centred in the viewport, not between controls. */
   .site-header--standard .header-inner { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 0; }
-  .site-header--standard .header-brand { grid-column: 2; grid-row: 1; justify-self: center; }
+  .site-header--standard .header-brand { grid-column: 2; grid-row: 1; justify-self: center; transform: translateY(6px); }
   .site-header--standard .menu-toggle { grid-column: 3; grid-row: 1; }
   .site-header--standard .primary-nav--inline { display: none; }
   .brand { width: 75px; }

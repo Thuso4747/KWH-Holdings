@@ -50,6 +50,7 @@ describe('navigation and action typography', () => {
     expect(ruleFor('.site-header--standard .header-inner').gridTemplateColumns).toBe('minmax(0, 1fr) auto minmax(0, 1fr)');
     expect(ruleFor('.site-header--standard .header-brand').gridColumn).toBe('2');
     expect(ruleFor('.site-header--standard .header-brand').justifySelf).toBe('center');
+    expect(ruleFor('.site-header--standard .header-brand').transform).toBe('translateY(6px)');
     expect(ruleFor('.site-header--standard .menu-toggle').gridColumn).toBe('3');
     expect(ruleFor('.site-header--standard .primary-nav--inline').display).toBe('none');
     expect(ruleFor('.site-header--standard .primary-nav--dropdown').maxHeight).toBe('calc(100dvh - var(--header-min-height) - 12px)');
