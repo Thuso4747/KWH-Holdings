@@ -65,19 +65,10 @@ describe('navigation and home sections', () => {
     expect(rotation.isConnected).toBe(false);
   });
 
-  it('lets visitors stop and restart the word animation without losing focus', async () => {
-    const user = userEvent.setup();
+  it('rotates the headline automatically without a stop or start button', () => {
     renderAt(<HomePage />);
-    const button = screen.getByRole('button', { name: 'Stop animation' });
-    const headline = button.closest('.home-hero__headline');
-    expect(headline).not.toHaveClass('is-animation-stopped');
-    button.focus();
-    await user.keyboard('{Enter}');
-    expect(headline).toHaveClass('is-animation-stopped');
-    expect(screen.getByRole('button', { name: 'Restart animation' })).toHaveFocus();
-    await user.keyboard(' ');
-    expect(headline).not.toHaveClass('is-animation-stopped');
-    expect(screen.getByRole('button', { name: 'Stop animation' })).toHaveFocus();
+    const headline = screen.getByRole('heading', { level: 1 }).closest('.home-hero__headline');
+    expect(within(headline).queryByRole('button')).not.toBeInTheDocument();
   });
 
   it('provides a scroll link from the dashboard to the next section', () => {

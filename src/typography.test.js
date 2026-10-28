@@ -110,14 +110,11 @@ describe('navigation and action typography', () => {
     expect(animation).toContain('home-word-cycle 8s');
     expect(animation).toContain('var(--word-delay) infinite both');
     expect(rules.find((rule) => rule.name === 'home-word-cycle')).toBeDefined();
-    expect(ruleFor('.is-animation-stopped .rotating-word__item').animation).toBe('none');
-    expect(ruleFor('.is-animation-stopped .rotating-word__item--first').opacity).toBe('1');
 
     const reducedMotion = rules.find((rule) => rule.conditionText === '(prefers-reduced-motion: reduce)');
     const reducedRules = [...reducedMotion.cssRules];
     expect(ruleFor('.rotating-word__item', reducedRules).getPropertyValue('animation')).toBe('none');
     expect(ruleFor('.rotating-word__item--first', reducedRules).opacity).toBe('1');
-    expect(ruleFor('.home-hero__motion-toggle', reducedRules).display).toBe('none');
   });
 
   it('balances the home hero and allows its columns to wrap', () => {
