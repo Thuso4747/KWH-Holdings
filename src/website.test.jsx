@@ -54,6 +54,7 @@ describe('navigation and home sections', () => {
     const setInterval = vi.spyOn(window, 'setInterval');
     const { unmount } = renderAt(<HomePage />);
     const heading = screen.getByRole('heading', { level: 1, name: 'Strategic Solutions for Modern Businesses' });
+    expect(heading.querySelector('.home-hero__headline-prefix')).toHaveTextContent('Strategic');
     const rotation = heading.querySelector('.rotating-word');
     expect(rotation).toHaveAttribute('aria-hidden', 'true');
     const words = [...rotation.querySelectorAll('.rotating-word__item')];

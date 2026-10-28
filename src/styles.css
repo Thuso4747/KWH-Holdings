@@ -180,6 +180,7 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
 .home-hero__summary { flex: 1 1 24rem; min-width: 0; max-width: 24rem; }
 .home-hero h1 { margin: 0; color: #222526; font-size: clamp(3rem, 5vw, 4.5rem); font-weight: 700; letter-spacing: -.052em; line-height: 1.08; overflow-wrap: anywhere; }
 .home-hero__headline-accent { color: var(--accent); letter-spacing: -.055em; }
+.home-hero__headline-prefix { color: var(--ink); }
 /* Reserve space for the longest word so the heading and surrounding content don't jump. */
 .rotating-word { display: inline-grid; max-width: 100%; vertical-align: baseline; overflow: clip; }
 .rotating-word__sizer, .rotating-word__item { grid-area: 1 / 1; }

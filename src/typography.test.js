@@ -99,6 +99,27 @@ describe('navigation and action typography', () => {
     expect(hidden.pointerEvents).toBe('none');
   });
 
+  it('uses the dark heading colour for Strategic and the accent for the rotating word', () => {
+    document.body.innerHTML = `
+      <section class="home-hero"><h1>
+        <span class="home-hero__headline-accent"><span class="home-hero__headline-prefix">Strategic</span> <span class="rotating-word">Solutions</span></span>
+        for Modern Businesses
+      </h1></section>
+    `;
+    const heading = getComputedStyle(document.querySelector('.home-hero h1'));
+    const prefix = getComputedStyle(document.querySelector('.home-hero__headline-prefix'));
+    const accent = getComputedStyle(document.querySelector('.home-hero__headline-accent'));
+    // JSDOM leaves CSS variables unresolved, so compare their declared colours separately.
+    const root = getComputedStyle(document.documentElement);
+    const probe = document.createElement('span');
+    expect(prefix.color).toBe('var(--ink)');
+    expect(accent.color).toBe('var(--accent)');
+    probe.style.color = root.getPropertyValue('--ink').trim();
+    expect(probe.style.color).toBe(heading.color);
+    probe.style.color = root.getPropertyValue('--accent').trim();
+    expect(probe.style.color).not.toBe(heading.color);
+  });
+
   it('keeps the rotating word stable and offers a still reduced-motion heading', () => {
     const rules = [...stylesheet.sheet.cssRules];
     const ruleFor = (selector, list = rules) => list.find((rule) => rule.selectorText === selector).style;

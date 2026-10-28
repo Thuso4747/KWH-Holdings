@@ -102,7 +102,7 @@ export default function HomePage() {
             <p className="eyebrow"><span aria-hidden="true">+</span> STRATEGY · CREATIVITY · TECHNOLOGY</p>
             <h1 aria-label="Strategic Solutions for Modern Businesses">
               <span className="home-hero__headline-accent">
-                Strategic{' '}
+                <span className="home-hero__headline-prefix">Strategic</span>{' '}
                 <span className="rotating-word" aria-hidden="true">
                   <span className="rotating-word__sizer">Improvements</span>
                   {heroWords.map((word, index) => (
