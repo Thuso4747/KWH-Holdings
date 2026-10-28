@@ -124,31 +124,49 @@ describe('navigation and action typography', () => {
     const rules = [...stylesheet.sheet.cssRules];
     const ruleFor = (selector, list = rules) => list.find((rule) => rule.selectorText === selector).style;
     const word = ruleFor('.rotating-word');
+    expect(ruleFor('.home-hero h1').lineHeight).toBe('1.24'); // room for wrapped neighbouring lines
     expect(word.display).toBe('inline-grid');
     expect(word.maxWidth).toBe('100%');
     expect(ruleFor('.rotating-word__sizer').visibility).toBe('hidden');
-    const animation = ruleFor('.rotating-word__item').animation;
-    expect(animation).toContain('home-word-cycle 8s');
-    expect(animation).toContain('var(--word-delay) infinite both');
+    const item = ruleFor('.rotating-word__item');
+    expect(item.visibility).toBe('hidden');
+    expect(item.animation).toContain('home-word-cycle 8s');
+    expect(item.animation).toContain('var(--word-delay) infinite both');
+    expect(item.animation).toContain('word-flip-visible 8s steps(1, end)');
     expect(rules.find((rule) => rule.name === 'home-word-cycle')).toBeDefined();
+    const visibility = rules.find((rule) => rule.name === 'word-flip-visible');
+    expect([...visibility.cssRules].map((rule) => [rule.keyText, rule.style.visibility])).toEqual([
+      ['0%, 24.999%', 'visible'], ['25%, 100%', 'hidden'],
+    ]);
 
     const reducedMotion = rules.find((rule) => rule.conditionText === '(prefers-reduced-motion: reduce)');
     const reducedRules = [...reducedMotion.cssRules];
     expect(ruleFor('.rotating-word__item', reducedRules).getPropertyValue('animation')).toBe('none');
+    expect(ruleFor('.rotating-word__item', reducedRules).visibility).toBe('hidden');
+    expect(ruleFor('.rotating-word__item--first', reducedRules).visibility).toBe('visible');
     expect(ruleFor('.rotating-word__item--first', reducedRules).opacity).toBe('1');
   });
 
   it('keeps the fixed service words white and animates only the accent word', () => {
     const rules = [...stylesheet.sheet.cssRules];
     const ruleFor = (selector, list = rules) => list.find((rule) => rule.selectorText === selector).style;
+    expect(ruleFor('.service-hero h1').lineHeight).toBe('1.22');
     expect(ruleFor('.service-hero__fixed-word').color).toBe('rgb(255, 255, 255)');
     expect(ruleFor('.service-flip__word').color).toBe('rgb(177, 204, 202)');
     expect(ruleFor('.service-flip').display).toBe('inline-grid');
+    expect(ruleFor('.service-flip__stage').position).toBe('relative');
     expect(ruleFor('.service-flip__stage').visibility).toBe('hidden');
-    expect(ruleFor('.service-flip__stage').animation).toContain('service-flip-visible 8s');
+    expect(ruleFor('.service-flip__stage').animation).toContain('word-flip-visible 8s');
     expect(ruleFor('.service-flip__word').animation).toContain('home-word-cycle 8s');
+    expect(ruleFor('.service-flip--with-suffix .service-flip__word').animationName).toBe('service-word-cycle');
+    expect(ruleFor('.service-flip__suffix').display).toBe('inline-block');
+    expect(ruleFor('.service-flip__suffix').animation).toContain('service-suffix-move 8s');
     expect(ruleFor('.service-hero__inner > p:not(.eyebrow)').overflowWrap).toBe('anywhere');
-    expect(rules.find((rule) => rule.name === 'service-flip-visible')).toBeDefined();
+    const wordCycle = rules.find((rule) => rule.name === 'service-word-cycle');
+    const suffixMove = rules.find((rule) => rule.name === 'service-suffix-move');
+    expect([...wordCycle.cssRules].map((rule) => rule.keyText)).toEqual(['0%, 3%', '7%, 20%', '24%, 100%']);
+    expect([...suffixMove.cssRules].map((rule) => rule.keyText)).toEqual(['0%', '3%, 100%']);
+    expect(suffixMove.cssRules[0].style.transform).toBe('translate(var(--suffix-from-x, 0px), var(--suffix-from-y, 0px))');
     const smallScreen = [...rules.find((rule) => rule.conditionText === '(max-width: 440px)').cssRules];
     expect(ruleFor('.service-hero--marketing h1', smallScreen).fontSize).toBe('clamp(2rem, 10vw, 2.75rem)');
 
@@ -158,6 +176,8 @@ describe('navigation and action typography', () => {
     expect(ruleFor('.service-flip__stage--first', reduced).visibility).toBe('visible');
     expect(ruleFor('.service-flip__word', reduced).animation).toBe('none');
     expect(ruleFor('.service-flip__word', reduced).opacity).toBe('1');
+    expect(ruleFor('.service-flip__suffix', reduced).animation).toBe('none');
+    expect(ruleFor('.service-flip__suffix', reduced).transform).toBe('none');
   });
 
   it('balances the home hero and allows its columns to wrap', () => {
