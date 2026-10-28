@@ -55,6 +55,26 @@ describe('navigation and action typography', () => {
     expect(ruleFor('.site-header--standard .primary-nav--dropdown').maxHeight).toBe('calc(100dvh - var(--header-min-height) - 12px)');
   });
 
+  it('places the home mobile menu and blur over the entire page, including the header', () => {
+    const mobile = [...stylesheet.sheet.cssRules].find((rule) => rule.conditionText === '(max-width: 760px)');
+    const ruleFor = (selector) => [...mobile.cssRules].find((rule) => rule.selectorText === selector).style;
+    const overlay = ruleFor('.home-menu-overlay:not([hidden])');
+    const backdrop = ruleFor('.home-menu__backdrop');
+    const close = ruleFor('.home-menu__close');
+    const header = [...stylesheet.sheet.cssRules].find((rule) => rule.selectorText === '.site-header').style;
+    expect(overlay.position).toBe('fixed');
+    expect(overlay.inset).toBe('0px');
+    expect(Number(overlay.zIndex)).toBeGreaterThan(Number(header.zIndex));
+    expect(backdrop.position).toBe('absolute');
+    expect(backdrop.inset).toBe('0px');
+    expect(backdrop.getPropertyValue('backdrop-filter')).toBe('blur(12px)');
+    expect(styles).toContain('-webkit-backdrop-filter: blur(12px)');
+    expect(backdrop.getPropertyValue('touch-action')).toBe('none');
+    expect(close.width).toBe('44px');
+    expect(close.height).toBe('44px');
+    expect(styles).toContain('body.home-menu-open .site-header,'); // Fallback when backdrop filters are unavailable.
+  });
+
   it('gives the dashboard a viewport-sized minimum without fixing its height', () => {
     document.body.innerHTML = '<section class="home-hero"><div class="home-hero__inner">Dashboard content</div><a class="home-hero__scroll" href="/#vision">Scroll to explore</a></section>';
     const hero = getComputedStyle(document.querySelector('.home-hero'));

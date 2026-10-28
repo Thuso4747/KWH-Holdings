@@ -16,21 +16,24 @@ const items = [
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuToggleRef = useRef(null);
+  const homeMenuRef = useRef(null);
+  const homeMenuCloseRef = useRef(null);
   const homeMenuHadFocus = useRef(false);
   const location = useLocation();
   const isHomePage = location.pathname === '/';
   const isServicePage = /^\/(?:services\/(?:marketing|business|software)|marketing|business|software)\/?$/.test(location.pathname);
   const serviceHeader = useServiceHeader(isServicePage, location.pathname, menuOpen);
   const isServiceMenuOpen = isServicePage && menuOpen;
+  const isHomeMenuOpen = isHomePage && menuOpen;
 
   useLayoutEffect(() => {
     homeMenuHadFocus.current = false;
     setMenuOpen(false);
   }, [location.pathname, location.search, location.hash]);
 
-  // The standard dropdown is not modal: clicking outside dismisses it.
+  // The standard dropdown outside the home and service pages is not modal.
   useEffect(() => {
-    if (!menuOpen || isServicePage) return undefined;
+    if (!menuOpen || isServicePage || isHomePage) return undefined;
     const onPointerDown = (event) => {
       if (!serviceHeader.headerRef.current?.contains(event.target)) {
         homeMenuHadFocus.current = false;
@@ -39,7 +42,7 @@ export default function Header() {
     };
     document.addEventListener('pointerdown', onPointerDown);
     return () => document.removeEventListener('pointerdown', onPointerDown);
-  }, [isServicePage, menuOpen, serviceHeader.headerRef]);
+  }, [isHomePage, isServicePage, menuOpen, serviceHeader.headerRef]);
 
   // The home menu is mobile-only; close it and preserve focus when widening.
   useEffect(() => {
@@ -50,7 +53,7 @@ export default function Header() {
       const header = serviceHeader.headerRef.current;
       // CSS may hide the focused mobile control before this media event fires.
       const focusWasInMenu = document.activeElement === menuToggleRef.current
-        || header?.querySelector('.primary-nav--dropdown')?.contains(document.activeElement)
+        || homeMenuRef.current?.contains(document.activeElement)
         || (homeMenuHadFocus.current && document.activeElement === document.body);
       homeMenuHadFocus.current = false;
       setMenuOpen(false);
@@ -66,24 +69,28 @@ export default function Header() {
     };
   }, [isHomePage, serviceHeader.headerRef]);
 
-  // On small screens the transparent menu sits over the page as a modal.
+  // Both mobile overlays keep the background inert and restore its previous state on close.
   useLayoutEffect(() => {
-    if (!isServiceMenuOpen) return undefined;
+    if (!isServiceMenuOpen && !isHomeMenuOpen) return undefined;
     const backgroundElements = [...document.querySelectorAll('main, .site-footer, .skip-link')];
+    if (isHomeMenuOpen && serviceHeader.headerRef.current) backgroundElements.push(serviceHeader.headerRef.current);
     const alreadyInert = backgroundElements.map((element) => element.hasAttribute('inert'));
     const previousOverflow = document.body.style.overflow;
-    const hadMenuClass = document.body.classList.contains('service-menu-open');
+    const menuClass = isHomeMenuOpen ? 'home-menu-open' : 'service-menu-open';
+    const hadMenuClass = document.body.classList.contains(menuClass);
+    // Move focus out of the header before making the blurred background inert.
+    if (isHomeMenuOpen) homeMenuCloseRef.current?.focus({ preventScroll: true });
     backgroundElements.forEach((element) => element.setAttribute('inert', ''));
-    document.body.classList.add('service-menu-open');
+    document.body.classList.add(menuClass);
     document.body.style.overflow = 'hidden';
     return () => {
       backgroundElements.forEach((element, index) => {
         if (!alreadyInert[index]) element.removeAttribute('inert');
       });
-      if (!hadMenuClass) document.body.classList.remove('service-menu-open');
+      if (!hadMenuClass) document.body.classList.remove(menuClass);
       document.body.style.overflow = previousOverflow;
     };
-  }, [isServiceMenuOpen]);
+  }, [isHomeMenuOpen, isServiceMenuOpen, serviceHeader.headerRef]);
 
   useEffect(() => {
     if (!isServiceMenuOpen || !window.matchMedia) return undefined;
@@ -124,28 +131,45 @@ export default function Header() {
     window.setTimeout(() => serviceHeader.triggerRef.current?.focus({ preventScroll: true }), 0);
   }
 
+  function closeHomeNavigation() {
+    setMenuOpen(false);
+    window.setTimeout(() => menuToggleRef.current?.focus({ preventScroll: true }), 0);
+  }
+
   function handleMenuToggle() {
     if (menuOpen && isServicePage) closeServiceNavigation();
+    else if (menuOpen && isHomePage) closeHomeNavigation();
     else setMenuOpen(!menuOpen);
   }
 
   function handleHeaderFocus(event) {
     if (isServicePage) serviceHeader.onFocus();
-    if (isHomePage) {
-      homeMenuHadFocus.current = event.target === menuToggleRef.current
-        || Boolean(event.target.closest('.primary-nav--dropdown'));
-    }
+    if (isHomePage) homeMenuHadFocus.current = event.target === menuToggleRef.current;
   }
 
   function handleHeaderBlur(event) {
     // The modal backdrop handles outside clicks; do not unmount it on blur first.
-    if (isServiceMenuOpen) return;
+    if (isServiceMenuOpen || isHomeMenuOpen) return;
     if (!event.currentTarget.contains(event.relatedTarget)) {
       const widening = isHomePage && (window.matchMedia?.('(min-width: 761px)').matches ?? window.innerWidth > 760);
       if (event.relatedTarget || !widening) homeMenuHadFocus.current = false;
       setMenuOpen(false);
     }
     if (isServicePage) serviceHeader.onBlur(event);
+  }
+
+  function trapMenuFocus(event, container) {
+    if (event.key !== 'Tab' || !container) return;
+    const controls = [...container.querySelectorAll('.menu-toggle, .home-menu__close, .primary-nav a[href]')];
+    const first = controls[0];
+    const last = controls[controls.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last?.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first?.focus();
+    }
   }
 
   function handleHeaderKeyDown(event) {
@@ -160,17 +184,16 @@ export default function Header() {
       }
       return;
     }
-    if (!isServiceMenuOpen || event.key !== 'Tab') return;
-    const controls = [...serviceHeader.headerRef.current.querySelectorAll('.menu-toggle, .primary-nav a[href]')];
-    const first = controls[0];
-    const last = controls[controls.length - 1];
-    if (event.shiftKey && document.activeElement === first) {
+    if (isServiceMenuOpen) trapMenuFocus(event, serviceHeader.headerRef.current);
+  }
+
+  function handleHomeMenuKeyDown(event) {
+    if (event.key === 'Escape') {
       event.preventDefault();
-      last?.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first?.focus();
+      closeHomeNavigation();
+      return;
     }
+    trapMenuFocus(event, homeMenuRef.current);
   }
 
   function renderNavigationLinks(menuDetails = false) {
@@ -187,6 +210,18 @@ export default function Header() {
         {menuDetails && <DiagonalArrowIcon className="navigation-menu__arrow" size={19} />}
       </Link>
     ));
+  }
+
+  function renderMenuContents() {
+    return (
+      <>
+        <div className="navigation-menu__heading" aria-hidden="true"><span>Explore</span><span>KWH Holdings</span></div>
+        {renderNavigationLinks(true)}
+        <Link className="mobile-nav-cta" to="/consultation" onClick={() => setMenuOpen(false)}>
+          <span>Start a project</span><DiagonalArrowIcon size={19} />
+        </Link>
+      </>
+    );
   }
 
   return (
@@ -206,7 +241,7 @@ export default function Header() {
         </button>
       )}
       {isServiceMenuOpen && <div className="service-menu-backdrop" aria-hidden="true" onClick={closeServiceNavigation} />}
-      {!isServicePage && menuOpen && <div className="standard-menu-backdrop" aria-hidden="true" />}
+      {!isServicePage && !isHomePage && menuOpen && <div className="standard-menu-backdrop" aria-hidden="true" />}
       <header
         id="site-header"
         ref={serviceHeader.headerRef}
@@ -229,27 +264,53 @@ export default function Header() {
             ref={menuToggleRef}
             type="button"
             className="menu-toggle"
-            aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-label={menuOpen && !isHomePage ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={menuOpen}
             aria-controls="primary-navigation"
             onClick={handleMenuToggle}
           >
-            {menuOpen ? <X size={24} aria-hidden="true" /> : <MenuIcon aria-hidden="true" />}
+            {menuOpen && !isHomePage ? <X size={24} aria-hidden="true" /> : <MenuIcon aria-hidden="true" />}
           </button>
-          <nav
-            id="primary-navigation"
-            className={`primary-nav ${!isServicePage ? 'primary-nav--dropdown' : ''} ${menuOpen ? 'is-open' : ''}`}
-            aria-label={isServicePage ? 'Primary navigation' : 'Navigation menu'}
-            hidden={!isServicePage && !menuOpen}
-          >
-            <div className="navigation-menu__heading" aria-hidden="true"><span>Explore</span><span>KWH Holdings</span></div>
-            {renderNavigationLinks(true)}
-            <Link className="mobile-nav-cta" to="/consultation" onClick={() => setMenuOpen(false)}>
-              <span>Start a project</span><DiagonalArrowIcon size={19} />
-            </Link>
-          </nav>
+          {!isHomePage && (
+            <nav
+              id="primary-navigation"
+              className={`primary-nav ${!isServicePage ? 'primary-nav--dropdown' : ''} ${menuOpen ? 'is-open' : ''}`}
+              aria-label={isServicePage ? 'Primary navigation' : 'Navigation menu'}
+              hidden={!isServicePage && !menuOpen}
+            >
+              {renderMenuContents()}
+            </nav>
+          )}
         </div>
       </header>
+      {isHomePage && (
+        <div
+          ref={homeMenuRef}
+          className="home-menu-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navigation menu"
+          hidden={!isHomeMenuOpen}
+          onKeyDownCapture={handleHomeMenuKeyDown}
+          onFocusCapture={() => { homeMenuHadFocus.current = true; }}
+        >
+          <div className="home-menu__backdrop" aria-hidden="true" onClick={closeHomeNavigation} />
+          <button
+            ref={homeMenuCloseRef}
+            type="button"
+            className="home-menu__close"
+            aria-label="Close navigation menu"
+            aria-controls="primary-navigation"
+            aria-expanded={isHomeMenuOpen}
+            onClick={closeHomeNavigation}
+          >
+            <X size={24} aria-hidden="true" />
+          </button>
+          <nav id="primary-navigation" className={`primary-nav home-menu__nav ${isHomeMenuOpen ? 'is-open' : ''}`} aria-label="Navigation menu">
+            {renderMenuContents()}
+          </nav>
+        </div>
+      )}
     </>
   );
 }
