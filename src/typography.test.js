@@ -43,6 +43,39 @@ describe('navigation and action typography', () => {
     expect(getComputedStyle(document.querySelector('.menu-toggle')).justifySelf).toBe('end');
   });
 
+  it('centres the logo independently of the menu control on mobile', () => {
+    const mobile = [...stylesheet.sheet.cssRules].find((rule) => rule.conditionText === '(max-width: 760px)');
+    const ruleFor = (selector) => [...mobile.cssRules].find((rule) => rule.selectorText === selector).style;
+    expect(ruleFor('.site-header--standard .header-inner').display).toBe('grid');
+    expect(ruleFor('.site-header--standard .header-inner').gridTemplateColumns).toBe('minmax(0, 1fr) auto minmax(0, 1fr)');
+    expect(ruleFor('.site-header--standard .header-brand').gridColumn).toBe('2');
+    expect(ruleFor('.site-header--standard .header-brand').justifySelf).toBe('center');
+    expect(ruleFor('.site-header--standard .header-brand').transform).toBe('translateY(6px)');
+    expect(ruleFor('.site-header--standard .menu-toggle').gridColumn).toBe('3');
+    expect(ruleFor('.site-header--standard .primary-nav--inline').display).toBe('none');
+    expect(ruleFor('.site-header--standard .primary-nav--dropdown').maxHeight).toBe('calc(100dvh - var(--header-min-height) - 12px)');
+  });
+
+  it('places full-screen mobile menus and blur over the entire page, including the header', () => {
+    const mobile = [...stylesheet.sheet.cssRules].find((rule) => rule.conditionText === '(max-width: 760px)');
+    const ruleFor = (selector) => [...mobile.cssRules].find((rule) => rule.selectorText === selector).style;
+    const overlay = ruleFor('.mobile-menu-overlay:not([hidden])');
+    const backdrop = ruleFor('.mobile-menu__backdrop');
+    const close = ruleFor('.mobile-menu__close');
+    const header = [...stylesheet.sheet.cssRules].find((rule) => rule.selectorText === '.site-header').style;
+    expect(overlay.position).toBe('fixed');
+    expect(overlay.inset).toBe('0px');
+    expect(Number(overlay.zIndex)).toBeGreaterThan(Number(header.zIndex));
+    expect(backdrop.position).toBe('absolute');
+    expect(backdrop.inset).toBe('0px');
+    expect(backdrop.getPropertyValue('backdrop-filter')).toBe('blur(12px)');
+    expect(styles).toContain('-webkit-backdrop-filter: blur(12px)');
+    expect(backdrop.getPropertyValue('touch-action')).toBe('none');
+    expect(close.width).toBe('44px');
+    expect(close.height).toBe('44px');
+    expect(styles).toContain('body.mobile-menu-open .site-header,'); // Fallback when backdrop filters are unavailable.
+  });
+
   it('gives the dashboard a viewport-sized minimum without fixing its height', () => {
     document.body.innerHTML = '<section class="home-hero"><div class="home-hero__inner">Dashboard content</div><a class="home-hero__scroll" href="/#vision">Scroll to explore</a></section>';
     const hero = getComputedStyle(document.querySelector('.home-hero'));
@@ -54,6 +87,16 @@ describe('navigation and action typography', () => {
     expect(header.getPropertyValue('--header-min-height').trim()).toBe('126px');
     expect(styles).toContain('min-height: calc(100vh - var(--header-min-height))');
     expect(styles).toContain('--header-min-height: 90px');
+  });
+
+  it('fades the scroll prompt without hiding a keyboard-focused link', () => {
+    const rules = [...stylesheet.sheet.cssRules];
+    const prompt = rules.find((rule) => rule.selectorText === '.home-hero__scroll').style;
+    const hidden = rules.find((rule) => rule.selectorText === '.home-hero__scroll.is-hidden:not(:focus-visible)').style;
+    expect(prompt.transition).toContain('opacity');
+    expect(hidden.opacity).toBe('0');
+    expect(hidden.visibility).toBe('hidden');
+    expect(hidden.pointerEvents).toBe('none');
   });
 
   it('balances the home hero and allows its columns to wrap', () => {
@@ -82,8 +125,8 @@ describe('navigation and action typography', () => {
   it('anchors consultation department arrows to the bottom of their links', () => {
     document.body.innerHTML = `
       <div class="consultation-department-grid">
-        <a href="/services/marketing"><h3>Marketing &amp; Digital</h3><p>Short description</p><span class="department-arrow">↗</span></a>
-        <a href="/services/business"><h3>Business Strategy</h3><p>Longer description that can wrap across lines</p><span class="department-arrow">↗</span></a>
+        <a href="/services/marketing"><h3>Marketing &amp; Digital</h3><p>Short description</p><svg class="department-arrow" aria-hidden="true"></svg></a>
+        <a href="/services/business"><h3>Business Strategy</h3><p>Longer description that can wrap across lines</p><svg class="department-arrow" aria-hidden="true"></svg></a>
       </div>
     `;
     for (const link of document.querySelectorAll('.consultation-department-grid a')) {
