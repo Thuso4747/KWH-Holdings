@@ -792,6 +792,29 @@ describe('navigation and home sections', () => {
 });
 
 describe('service pages', () => {
+  it.each([
+    { slug: 'marketing', heading: 'Amplify Your Brand Impact', fixed: 'Brand', prefix: true, words: ['Impact', 'Influence', 'Presence', 'Engagement'] },
+    { slug: 'business', heading: 'Transform Your Business Today', fixed: 'Today', prefix: false, words: ['Business', 'Brand', 'Startup', 'Venture'] },
+    { slug: 'software', heading: 'Build Tomorrow’s Software Today', fixed: 'Today', prefix: false, words: ['Software', 'Product', 'System', 'Tech'] },
+  ])('rotates the $slug hero words while keeping a stable accessible heading', ({ slug, heading: name, fixed, prefix, words }) => {
+    const setInterval = vi.spyOn(window, 'setInterval');
+    const { unmount } = renderAt(<ServicePage service={servicePages[slug]} />, `/services/${slug}`);
+    const heading = screen.getByRole('heading', { level: 1, name });
+    const flip = heading.querySelector('.service-flip');
+    expect(flip).toHaveAttribute('aria-hidden', 'true');
+    const stages = [...flip.querySelectorAll('.service-flip__stage')];
+    expect(stages.map((stage) => stage.querySelector('.service-flip__word').textContent)).toEqual(words);
+    expect(stages.map((stage) => stage.querySelector('.service-hero__fixed-word').textContent)).toEqual(words.map(() => fixed));
+    expect(stages.map((stage) => stage.textContent.trim())).toEqual(words.map((word) => prefix ? `${fixed} ${word}` : `${word} ${fixed}`));
+    expect(stages.map((stage) => stage.style.getPropertyValue('--word-delay'))).toEqual(['0s', '2s', '4s', '6s']);
+    expect(stages[0]).toHaveClass('service-flip__stage--first');
+    expect(heading.querySelector('[aria-live]')).toBeNull();
+    expect(heading.closest('.service-hero').querySelector('button')).toBeNull();
+    expect(setInterval).not.toHaveBeenCalled(); // CSS owns the loop; unmounting removes the animation.
+    unmount();
+    expect(flip.isConnected).toBe(false);
+  });
+
   it.each(Object.values(servicePages))('links $label hero to its service offerings', (service) => {
     renderAt(<ServicePage service={service} />, `/services/${service.slug}`);
     expect(screen.getByRole('link', { name: 'View Services' })).toHaveAttribute('href', `/services/${service.slug}#service-offerings`);

@@ -138,6 +138,28 @@ describe('navigation and action typography', () => {
     expect(ruleFor('.rotating-word__item--first', reducedRules).opacity).toBe('1');
   });
 
+  it('keeps the fixed service words white and animates only the accent word', () => {
+    const rules = [...stylesheet.sheet.cssRules];
+    const ruleFor = (selector, list = rules) => list.find((rule) => rule.selectorText === selector).style;
+    expect(ruleFor('.service-hero__fixed-word').color).toBe('rgb(255, 255, 255)');
+    expect(ruleFor('.service-flip__word').color).toBe('rgb(177, 204, 202)');
+    expect(ruleFor('.service-flip').display).toBe('inline-grid');
+    expect(ruleFor('.service-flip__stage').visibility).toBe('hidden');
+    expect(ruleFor('.service-flip__stage').animation).toContain('service-flip-visible 8s');
+    expect(ruleFor('.service-flip__word').animation).toContain('home-word-cycle 8s');
+    expect(ruleFor('.service-hero__inner > p:not(.eyebrow)').overflowWrap).toBe('anywhere');
+    expect(rules.find((rule) => rule.name === 'service-flip-visible')).toBeDefined();
+    const smallScreen = [...rules.find((rule) => rule.conditionText === '(max-width: 440px)').cssRules];
+    expect(ruleFor('.service-hero--marketing h1', smallScreen).fontSize).toBe('clamp(2rem, 10vw, 2.75rem)');
+
+    const reduced = [...rules.find((rule) => rule.conditionText === '(prefers-reduced-motion: reduce)').cssRules];
+    expect(ruleFor('.service-flip__stage', reduced).animation).toBe('none');
+    expect(ruleFor('.service-flip__stage', reduced).visibility).toBe('hidden');
+    expect(ruleFor('.service-flip__stage--first', reduced).visibility).toBe('visible');
+    expect(ruleFor('.service-flip__word', reduced).animation).toBe('none');
+    expect(ruleFor('.service-flip__word', reduced).opacity).toBe('1');
+  });
+
   it('balances the home hero and allows its columns to wrap', () => {
     document.body.innerHTML = `
       <section class="home-hero"><div class="home-hero__inner">

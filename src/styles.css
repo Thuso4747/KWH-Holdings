@@ -295,8 +295,17 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
 .service-hero__inner { position: relative; padding-top: 120px; padding-bottom: 270px; }
 .service-hero h1 { max-width: 680px; margin-bottom: 22px; color: #fff; font-size: clamp(3rem, 5vw, 4.5rem); letter-spacing: -.05em; line-height: 1.08; overflow-wrap: anywhere; }
 .service-hero .button { max-width: 100%; white-space: normal; text-align: center; }
-.service-hero h1 span { color: #b1ccca; }
-.service-hero__inner > p:not(.eyebrow) { max-width: 485px; margin-bottom: 28px; color: #edf2f1; font-size: .98rem; line-height: 1.75; }
+.service-hero__fixed-word { color: #fff; }
+/* Stack complete phrases to reserve their widest/tallest layout while only the accent word moves. */
+.service-flip { display: inline-grid; max-width: 100%; vertical-align: baseline; }
+.service-flip__stage { grid-area: 1 / 1; min-width: 0; visibility: hidden; animation: service-flip-visible 8s steps(1, end) var(--word-delay) infinite; }
+.service-flip__clip { display: inline-block; max-width: 100%; vertical-align: baseline; overflow: clip; }
+.service-flip__word { display: inline-block; max-width: 100%; color: #b1ccca; opacity: 0; animation: home-word-cycle 8s cubic-bezier(.22, 1.25, .36, 1) var(--word-delay) infinite both; }
+@keyframes service-flip-visible {
+  0%, 24.999% { visibility: visible; }
+  25%, 100% { visibility: hidden; }
+}
+.service-hero__inner > p:not(.eyebrow) { max-width: 485px; margin-bottom: 28px; color: #edf2f1; font-size: .98rem; line-height: 1.75; overflow-wrap: anywhere; }
 .service-offerings { padding-top: 30px; padding-bottom: 110px; background: #fff; }
 .service-offerings__heading, .service-panel-heading { display: grid; grid-template-columns: 1fr minmax(0, .9fr); align-items: end; gap: 48px; }
 .service-offerings__heading { margin-bottom: 48px; }
@@ -720,6 +729,8 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
   .home-hero .button-row { align-items: stretch; }
   .home-hero .button-row .button { flex: 1 1 145px; gap: 8px; padding-inline: 10px; }
   .home-hero__inner { padding-block: 44px 56px; }
+  /* Let “Brand Engagement” fit comfortably on narrow screens without shifting the content below. */
+  .service-hero--marketing h1 { font-size: clamp(2rem, 10vw, 2.75rem); }
   .consultation-heading h1 { font-size: 2.25rem; }
   .consultation-form-wrap { padding: 30px 20px; }
   .form-actions .button { padding-inline: 15px; }
@@ -735,6 +746,9 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.035em; }
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   .rotating-word__item { animation: none !important; opacity: 0; transform: none; }
   .rotating-word__item--first { opacity: 1; }
+  .service-flip__stage { animation: none !important; visibility: hidden; }
+  .service-flip__stage--first { visibility: visible; }
+  .service-flip__word { animation: none !important; opacity: 1; transform: none; }
   .department-card__link:hover svg, .department-card__link:focus-visible svg, .offering-card__toggle[aria-expanded='false']:hover svg, .offering-card__toggle[aria-expanded='false']:focus-visible svg, .home-visual__links a:hover svg, .home-hero__scroll:hover svg, .home-hero__scroll:focus-visible svg, .consultation-department-grid a:hover .department-arrow, .consultation-department-grid a:focus-visible .department-arrow, .primary-nav.is-open > a:hover .navigation-menu__arrow, .primary-nav.is-open > a:focus-visible .navigation-menu__arrow { transform: none; }
   /* The menu's SVG animations are SMIL, not CSS animations. */
   .menu-icon path { stroke-dasharray: none !important; stroke-dashoffset: 0 !important; }
