@@ -7,6 +7,9 @@ import { StrategyIcon } from '../components/StrategyIcon';
 import { departments } from '../data/services';
 
 const icons = { marketing: StrategyIcon, business: PresentationIcon, software: Code2 };
+// The supplied strategy icon's 16-unit outlines on a 256-unit viewBox equal 1.5 units on a 24-unit viewBox.
+const expertiseIconStrokeWidth = 1.5;
+const heroWords = ['Solutions', 'Systems', 'Innovations', 'Improvements'];
 
 function DepartmentCard({ department, index }) {
   const Icon = icons[department.slug];
@@ -14,7 +17,7 @@ function DepartmentCard({ department, index }) {
     <article className={`department-card department-card--${department.slug}`}>
       <span className="department-card__index" aria-hidden="true">0{index + 1}</span>
       <div className="department-card__identity">
-        <div className="department-card__topline"><span>OUR EXPERTISE</span><Icon size={23} strokeWidth={1.6} aria-hidden="true" /></div>
+        <div className="department-card__topline"><span>OUR EXPERTISE</span><Icon size={23} strokeWidth={expertiseIconStrokeWidth} aria-hidden="true" /></div>
         <h3>{department.cardTitle}</h3>
       </div>
       <div className="department-card__body">
@@ -99,7 +102,23 @@ export default function HomePage() {
         <div className="container home-hero__inner">
           <div className="home-hero__headline">
             <p className="eyebrow"><span aria-hidden="true">+</span> STRATEGY · CREATIVITY · TECHNOLOGY</p>
-            <h1><span>Strategic Solutions</span><br />for Modern Businesses</h1>
+            <h1 aria-label="Strategic Solutions for Modern Businesses">
+              <span className="home-hero__headline-accent">
+                <span className="home-hero__headline-prefix">Strategic</span>{' '}
+                <span className="rotating-word" aria-hidden="true">
+                  <span className="rotating-word__sizer">Improvements</span>
+                  {heroWords.map((word, index) => (
+                    <span
+                      className={`rotating-word__item ${index === 0 ? 'rotating-word__item--first' : ''}`}
+                      style={{ '--word-delay': `${index * 2}s` }}
+                      key={word}
+                    >
+                      {word}
+                    </span>
+                  ))}
+                </span>
+              </span><br />for Modern Businesses
+            </h1>
           </div>
           <div className="home-hero__summary">
             <p>We bridge the gap between vision and execution with integrated consulting across marketing, business strategy and software development. Scale your business with confidence.</p>

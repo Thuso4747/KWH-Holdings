@@ -7,6 +7,7 @@ import { MemoryRouter } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ScrollManager from './components/ScrollManager';
+import { PresentationIcon } from './components/PresentationIcon';
 import HomePage from './pages/HomePage';
 import ServicePage from './pages/ServicePage';
 import ConsultationPage from './pages/ConsultationPage';
@@ -48,6 +49,28 @@ describe('navigation and home sections', () => {
     expect(screen.queryByRole('heading', { name: 'Featured Work' })).not.toBeInTheDocument();
     expect(document.querySelector('#work')).toBeNull();
     expect(screen.queryByRole('button', { name: /view case study/i })).not.toBeInTheDocument();
+  });
+
+  it('keeps one accessible heading while the visual words rotate in order', () => {
+    const setInterval = vi.spyOn(window, 'setInterval');
+    const { unmount } = renderAt(<HomePage />);
+    const heading = screen.getByRole('heading', { level: 1, name: 'Strategic Solutions for Modern Businesses' });
+    expect(heading.querySelector('.home-hero__headline-prefix')).toHaveTextContent('Strategic');
+    const rotation = heading.querySelector('.rotating-word');
+    expect(rotation).toHaveAttribute('aria-hidden', 'true');
+    const words = [...rotation.querySelectorAll('.rotating-word__item')];
+    expect(words.map((word) => word.textContent.trim())).toEqual(['Solutions', 'Systems', 'Innovations', 'Improvements']);
+    expect(words.map((word) => word.style.getPropertyValue('--word-delay'))).toEqual(['0s', '2s', '4s', '6s']);
+    expect(rotation.querySelector('.rotating-word__sizer')).toHaveTextContent('Improvements');
+    expect(setInterval).not.toHaveBeenCalled(); // CSS owns the animation, with no timer to leak on unmount.
+    unmount();
+    expect(rotation.isConnected).toBe(false);
+  });
+
+  it('rotates the headline automatically without a stop or start button', () => {
+    renderAt(<HomePage />);
+    const headline = screen.getByRole('heading', { level: 1 }).closest('.home-hero__headline');
+    expect(within(headline).queryByRole('button')).not.toBeInTheDocument();
   });
 
   it('provides a scroll link from the dashboard to the next section', () => {
@@ -737,6 +760,34 @@ describe('navigation and home sections', () => {
     expect(icon).toHaveAttribute('aria-hidden', 'true');
     expect(icon.querySelector('g')).toHaveAttribute('stroke', 'currentColor');
     expect(icon.querySelectorAll('path')[1]).toHaveAttribute('d', 'm8 12l3-3l2 2l3-3');
+  });
+
+  it('matches the line weight and size of all three expertise icons', () => {
+    renderAt(<HomePage />);
+    const icons = [...document.querySelectorAll('.department-card__topline svg')];
+    expect(icons).toHaveLength(3);
+    for (const icon of icons) {
+      expect(icon).toHaveAttribute('width', '23');
+      expect(icon).toHaveAttribute('height', '23');
+      expect(icon).toHaveAttribute('aria-hidden', 'true');
+    }
+    const [strategy, presentation, code] = icons;
+    const strategyShape = strategy.querySelector('path').getAttribute('d');
+    expect(strategy).toHaveAttribute('viewBox', '0 0 256 256');
+    expect(strategyShape).toContain('a36 36'); // The supplied icon's outer circle radius.
+    expect(strategyShape).toContain('a20 20'); // Its inner radius leaves a 16-unit outline.
+    const matchingStroke = String((36 - 20) * 24 / 256); // 1.5 units in a 24-unit viewBox.
+    expect(presentation).toHaveAttribute('viewBox', '0 0 24 24');
+    expect(code).toHaveAttribute('viewBox', '0 0 24 24');
+    expect(presentation.querySelector('g')).toHaveAttribute('stroke-width', matchingStroke);
+    expect(code).toHaveAttribute('stroke-width', matchingStroke);
+  });
+
+  it('allows the presentation icon stroke to be adjusted without changing its default', () => {
+    const { container, rerender } = render(<PresentationIcon />);
+    expect(container.querySelector('g')).toHaveAttribute('stroke-width', '2');
+    rerender(<PresentationIcon strokeWidth={1.5} />);
+    expect(container.querySelector('g')).toHaveAttribute('stroke-width', '1.5');
   });
 });
 
