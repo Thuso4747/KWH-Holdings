@@ -147,37 +147,18 @@ describe('navigation and action typography', () => {
     expect(ruleFor('.rotating-word__item--first', reducedRules).opacity).toBe('1');
   });
 
-  it('keeps the fixed service words white and animates only the accent word', () => {
+  it('keeps the service headings static with white fixed words and sage accents', () => {
     const rules = [...stylesheet.sheet.cssRules];
     const ruleFor = (selector, list = rules) => list.find((rule) => rule.selectorText === selector).style;
-    expect(ruleFor('.service-hero h1').lineHeight).toBe('1.22');
+    expect(ruleFor('.service-hero h1').lineHeight).toBe('1.23');
     expect(ruleFor('.service-hero__fixed-word').color).toBe('rgb(255, 255, 255)');
-    expect(ruleFor('.service-flip__word').color).toBe('rgb(177, 204, 202)');
-    expect(ruleFor('.service-flip').display).toBe('inline-grid');
-    expect(ruleFor('.service-flip__stage').position).toBe('relative');
-    expect(ruleFor('.service-flip__stage').visibility).toBe('hidden');
-    expect(ruleFor('.service-flip__stage').animation).toContain('word-flip-visible 8s');
-    expect(ruleFor('.service-flip__word').animation).toContain('home-word-cycle 8s');
-    expect(ruleFor('.service-flip--with-suffix .service-flip__word').animationName).toBe('service-word-cycle');
-    expect(ruleFor('.service-flip__suffix').display).toBe('inline-block');
-    expect(ruleFor('.service-flip__suffix').animation).toContain('service-suffix-move 8s');
+    expect(ruleFor('.service-hero__accent').color).toBe('rgb(177, 204, 202)');
+    expect(ruleFor('.service-hero__accent').animation).toBe('');
     expect(ruleFor('.service-hero__inner > p:not(.eyebrow)').overflowWrap).toBe('anywhere');
-    const wordCycle = rules.find((rule) => rule.name === 'service-word-cycle');
-    const suffixMove = rules.find((rule) => rule.name === 'service-suffix-move');
-    expect([...wordCycle.cssRules].map((rule) => rule.keyText)).toEqual(['0%, 3%', '7%, 20%', '24%, 100%']);
-    expect([...suffixMove.cssRules].map((rule) => rule.keyText)).toEqual(['0%', '3%, 100%']);
-    expect(suffixMove.cssRules[0].style.transform).toBe('translate(var(--suffix-from-x, 0px), var(--suffix-from-y, 0px))');
+    expect(rules.find((rule) => rule.name === 'service-word-cycle')).toBeUndefined();
+    expect(rules.find((rule) => rule.name === 'service-suffix-move')).toBeUndefined();
     const smallScreen = [...rules.find((rule) => rule.conditionText === '(max-width: 440px)').cssRules];
     expect(ruleFor('.service-hero--marketing h1', smallScreen).fontSize).toBe('clamp(2rem, 10vw, 2.75rem)');
-
-    const reduced = [...rules.find((rule) => rule.conditionText === '(prefers-reduced-motion: reduce)').cssRules];
-    expect(ruleFor('.service-flip__stage', reduced).animation).toBe('none');
-    expect(ruleFor('.service-flip__stage', reduced).visibility).toBe('hidden');
-    expect(ruleFor('.service-flip__stage--first', reduced).visibility).toBe('visible');
-    expect(ruleFor('.service-flip__word', reduced).animation).toBe('none');
-    expect(ruleFor('.service-flip__word', reduced).opacity).toBe('1');
-    expect(ruleFor('.service-flip__suffix', reduced).animation).toBe('none');
-    expect(ruleFor('.service-flip__suffix', reduced).transform).toBe('none');
   });
 
   it('balances the home hero and allows its columns to wrap', () => {
